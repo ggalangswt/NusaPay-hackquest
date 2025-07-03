@@ -1,0 +1,1 @@
+@chainlink/contracts-ccip/=lib/chainlink-ccip/chains/evm/
