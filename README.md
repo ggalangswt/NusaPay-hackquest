@@ -12,7 +12,7 @@
 
 ### Introduction to NusaPay
 
-**Welcome to the NusaPay GitBook**, a next-generation **cross-border payment protocol** designed to revolutionize international money transfers. In this Web3 era, NusaPay emerges as a fundamental financial solution that **simplifies the complex process of sending funds across borders**, directly converting digital assets into local currencies. As a project participating in the **MetaMask Card Dev Cook-Off Hackathon,** NusaPay demonstrates the unlimited potential of decentralized finance to address real-world challenges.
+**Welcome to the NusaPay**, a next-generation **cross-border payment protocol** designed to revolutionize international money transfers. In this Web3 era, NusaPay emerges as a fundamental financial solution that **simplifies the complex process of sending funds across borders**, directly converting digital assets into local currencies. As a project participating in the **MetaMask Card Dev Cook-Off Hackathon,** NusaPay demonstrates the unlimited potential of decentralized finance to address real-world challenges.
 
 ### 
 
