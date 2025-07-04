@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import DashboardHeader from "@/components/dashboard/Header";
 import RecipientGrid from "@/components/dashboard/RecipientGrid";
 import TransferPanel from "@/components/dashboard/TransferPanel";
-import type { Recipient } from "@/types/recipient";
+import type { Employee } from "@/types/recipient";
 import BeneficiaryModal from "@/components/modals/BeneficiaryModal";
 import AddTemplateModal from "@/components/modals/AddTemplateModal";
 import {
@@ -18,13 +18,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Template } from "@/lib/template";
 import ProcessingModal from "@/components/modals/ProcessLoading";
-import {
-  addGroupName,
-  deleteEmployeeData,
-  editEmployeeData,
-  loadEmployeeData,
-  loadGroupName,
-} from "@/api";
+
+
+import{addGroupName, loadGroupName} from "@/api/groupService"
+import { deleteEmployeeData, editEmployeeData, loadEmployeeData } from "@/api/employeeService";
 import { useUser } from "@/lib/UserContext";
 import { useRouter } from "next/navigation";
 
@@ -37,7 +34,7 @@ export default function Dashboard() {
   const [hasFetched, setHasFetched] = useState(false);
 
   const [showBeneficiaryModal, setShowBeneficiaryModal] = useState(false);
-  const [editingRecipient, setEditingRecipient] = useState<Recipient | null>(
+  const [editingRecipient, setEditingRecipient] = useState<Employee | null>(
     null
   );
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -56,22 +53,11 @@ export default function Dashboard() {
           groupId: selected.groupId,
         });
 
-        const recipientsFromBackend: Recipient[] = response.map(
-          (emp: Recipient) => ({
-            _id: emp._id,
-            name: emp.name,
-            bankCode: emp.bankCode,
-            bankAccount: emp.bankAccount,
-            bankAccountName: emp.bankAccountName,
-            amountTransfer: emp.amountTransfer,
-            currency: emp.currency,
-            localCurrency: emp.localCurrency,
-          })
-        );
+        const employeesFromBackend: Employee[] = response
 
         const updatedTemplate: Template = {
           ...selected,
-          recipients: recipientsFromBackend,
+          recipients: employeesFromBackend,
           updatedAt: new Date(),
         };
 
@@ -144,7 +130,7 @@ export default function Dashboard() {
     setShowTemplateModal(false);
   };
 
-  const updateCurrentTemplateRecipients = (newRecipients: Recipient[]) => {
+  const updateCurrentTemplateRecipients = (newRecipients: Employee[]) => {
     if (!currentTemplate) return;
 
     const updatedTemplate: Template = {
@@ -161,20 +147,19 @@ export default function Dashboard() {
     );
   };
 
-  const handleAddRecipient = (newRecipient: Omit<Recipient, "_id">) => {
+  const handleAddRecipient = (newRecipient: Omit<Employee, "_id">) => {
     if (!currentTemplate) return;
-    const recipient: Recipient = {
-      _id: Date.now().toString(),
+    const employee: Employee = {
       ...newRecipient,
     };
-    updateCurrentTemplateRecipients([...currentTemplate.recipients, recipient]);
+    updateCurrentTemplateRecipients([...currentTemplate.recipients, employee]);
     setShowBeneficiaryModal(false);
   };
 
-  // const handleEditRecipient = (updated: Recipient) => {
+  // const handleEditRecipient = (updated: Employee) => {
   //   if (!currentTemplate) return;
   //   const updatedList = currentTemplate.recipients.map((r) =>
-  //     r._id === updated._id ? updated : r
+  //     r.id === updated._id ? updated : r
   //   );
   //   updateCurrentTemplateRecipients(updatedList);
   //   setEditingRecipient(null);
@@ -183,26 +168,31 @@ export default function Dashboard() {
 
   const handleRemoveRecipient = async (id: string) => {
     if (!currentTemplate) return;
-    const updatedList = currentTemplate.recipients.filter((r) => r._id !== id);
+    const updatedList = currentTemplate.recipients.filter((r) => r.id !== id);
     await deleteEmployeeData(id);
     updateCurrentTemplateRecipients(updatedList);
   };
 
+
+
   const handleSaveBeneficiary = async (
-    data: Recipient | Omit<Recipient, "_id">
-  ) => {
-    if (!currentTemplate) return;
+  data: Employee
+) => {
+  if (!currentTemplate) return;
 
-    if ("_id" in data) {
-      await editEmployeeData({ ...data, _id: data._id });
-      await handleTemplateSwitch(currentTemplate.groupId);
-    } else {
-      // Ini tambah baru (tidak perlu fetch ulang kalau hanya local update)
-      handleAddRecipient(data);
-    }
+  // ✅ PERBAIKAN: Ubah kondisi 'if' ini.
+  // Cek ini memastikan 'data._id' ada dan bukan string kosong.
+  if (data.id) { 
+    // Di dalam blok ini, TypeScript sekarang yakin bahwa data._id adalah 'string'.
+    await editEmployeeData({ ...data, _id: data.id });
+    await handleTemplateSwitch(currentTemplate.groupId);
+  } else {
+    // Ini tambah baru
+    handleAddRecipient(data);
+  }
 
-    setShowBeneficiaryModal(false);
-  };
+  setShowBeneficiaryModal(false);
+};
 
   if (loading) {
     return (
@@ -220,16 +210,15 @@ export default function Dashboard() {
     setIsStage1Complete(false);
 
     try {
-      // const creationPayload = {
-      //   txId: "123",
-      //   companyId: user._id,
-      //   templateName: currentTemplate.nameOfGroup,
-      //   recipients: currentTemplate.recipients.map(r =>({
-      //     employeeId: r._id,
-      //     amount: r.amountTransfer,
-      //   }))
-      // }
-      //loading 1
+      const creationPayload = {
+        txId: "123",
+        companyId: user._id,
+        templateName: currentTemplate.nameOfGroup,
+        recipients: currentTemplate.recipients.map(r =>({
+          employeeId: r.id,
+          amount: r.amountTransfer,
+        }))
+      }
       // const newInvoice = await addInvoiceData(creationPayload);
       // setNewlyCreatedInvoiceId(newInvoice._id)
 

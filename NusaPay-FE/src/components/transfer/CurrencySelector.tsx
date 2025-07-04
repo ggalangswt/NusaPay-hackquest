@@ -1,65 +1,76 @@
+// src/components/CurrencySelector.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { ChevronDown, Search } from "lucide-react";
 
-// ✅ DIPERBAIKI: Tambahkan kembali properti 'symbol'
 interface Currency {
   code: string;
   name: string;
-  symbol: string; // Properti ini ditambahkan kembali
-  logoUrl?: string;
+  symbol: string;
   flag?: string;
 }
+
+// Daftar currency kripto yang didukung
+const SUPPORTED_CRYPTO_CURRENCIES: Currency[] = [
+  { code: 'USDC', name: 'USD Coin', symbol: 'USDC', flag: '🔵' },
+  { code: 'USDT', name: 'Tether', symbol: 'USDT', flag: '🟢' },
+  { code: 'DAI', name: 'Dai', symbol: 'DAI', flag: '🟡' },
+  { code: 'ETH', name: 'Ethereum', symbol: 'ETH', flag: 'Ξ' },
+  { code: 'MATIC', name: 'Polygon', symbol: 'MATIC', flag: '🔷' },
+  { code: 'BNB', name: 'Binance Coin', symbol: 'BNB', flag: '🔶' },
+  { code: 'AVAX', name: 'Avalanche', symbol: 'AVAX', flag: '🔺' },
+  { code: 'LINK', name: 'Chainlink', symbol: 'LINK', flag: '🔗' },
+];
+
+// ✅ BARU: Daftar mata uang fiat untuk tujuan transfer
+const FIAT_CURRENCIES: Currency[] = [
+  { code: 'IDR', name: 'Indonesian Rupiah', symbol: 'Rp', flag: '🇮🇩' },
+  { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸' },
+  { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺' },
+  { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵' },
+  { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧' },
+  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', flag: '🇸🇬' },
+  { code: 'MYR', name: 'Malaysian Ringgit', symbol: 'RM', flag: '🇲🇾' },
+];
+
 
 interface CurrencySelectorProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  // ✅ BARU: Prop untuk memilih jenis daftar mata uang ('crypto' atau 'fiat')
+  currencyType: 'crypto' | 'fiat';
   placeholder?: string;
   disabled?: boolean;
 }
-
-// Daftar currency kripto yang didukung
-const SUPPORTED_CRYPTO_CURRENCIES: Currency[] = [
-  // Stablecoins Umum
-  { code: 'USDC', name: 'USD Coin', symbol: 'USDC', flag: '🔵' },
-  { code: 'USDT', name: 'Tether', symbol: 'USDT', flag: '🟢' },
-  { code: 'DAI', name: 'Dai', symbol: 'DAI', flag: '🟡' },
-  { code: 'IDRX', name: 'Rupiah Token', symbol: 'IDRX', flag: '🇮🇩' },
-  
-  // Major L1/L2 Tokens
-  { code: 'ETH', name: 'Ethereum', symbol: 'ETH', flag: 'Ξ' },
-  { code: 'MATIC', name: 'Polygon', symbol: 'MATIC', flag: '🔷' },
-  { code: 'BNB', name: 'Binance Coin', symbol: 'BNB', flag: '🔶' },
-  { code: 'AVAX', name: 'Avalanche', symbol: 'AVAX', flag: '🔺' },
-
-  // DeFi & Lainnya
-  { code: 'LINK', name: 'Chainlink', symbol: 'LINK', flag: '🔗' },
-  { code: 'AAVE', name: 'Aave', symbol: 'AAVE', flag: '👻' },
-  { code: 'UNI', name: 'Uniswap', symbol: 'UNI', flag: '🦄' },
-];
 
 export default function CurrencySelector({
   label,
   value,
   onChange,
-  placeholder = "Select a token",
+  currencyType,
+  placeholder = "Select a currency",
   disabled = false,
 }: CurrencySelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredCurrencies, setFilteredCurrencies] = useState<Currency[]>(SUPPORTED_CRYPTO_CURRENCIES);
+
+  // ✅ DIPERBARUI: Pilih daftar mata uang berdasarkan prop `currencyType`
+  const currencyList = currencyType === 'crypto' ? SUPPORTED_CRYPTO_CURRENCIES : FIAT_CURRENCIES;
+
+  const [filteredCurrencies, setFilteredCurrencies] = useState<Currency[]>(currencyList);
 
   useEffect(() => {
-    const filtered = SUPPORTED_CRYPTO_CURRENCIES.filter(currency =>
+    const filtered = currencyList.filter(currency =>
       currency.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       currency.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCurrencies(filtered);
-  }, [searchTerm]);
+  }, [searchTerm, currencyList]);
 
-  const selectedCurrency = SUPPORTED_CRYPTO_CURRENCIES.find(currency => currency.code === value);
+  const selectedCurrency = currencyList.find(currency => currency.code === value);
 
   const handleSelect = (currencyCode: string) => {
     onChange(currencyCode);
@@ -67,6 +78,7 @@ export default function CurrencySelector({
     setSearchTerm("");
   };
 
+  // Sisa dari komponen (JSX) tidak berubah, hanya logikanya saja yang diperbarui
   return (
     <div className="relative">
       <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -104,59 +116,50 @@ export default function CurrencySelector({
         />
       </button>
 
-      {/* Dropdown menu */}
       {isOpen && (
         <>
-            <div className="absolute z-50 w-full mt-2 bg-slate-800 border border-white/20 
+          <div className="absolute z-50 w-full mt-2 bg-slate-800 border border-white/20 
             rounded-lg shadow-xl max-h-80 overflow-hidden flex flex-col">
             
             <div className="p-3 border-b border-white/10">
-                <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 
-                    w-4 h-4 text-gray-400" />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
-                    type="text"
-                    placeholder="Search token..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-white/10 
-                    rounded-lg text-white placeholder-gray-400 focus:outline-none 
-                    focus:ring-2 focus:ring-cyan-500/50"
-                    autoFocus
+                  type="text"
+                  placeholder="Search token..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-slate-700/50 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
+                  autoFocus
                 />
-                </div>
+              </div>
             </div>
 
             <div className="flex-grow overflow-y-auto">
-                {filteredCurrencies.length > 0 ? (
+              {filteredCurrencies.length > 0 ? (
                 filteredCurrencies.map((currency) => (
-                    <button
+                  <button
                     key={currency.code}
                     onClick={() => handleSelect(currency.code)}
-                    className={`w-full flex items-center space-x-3 px-4 py-3 
-                        hover:bg-slate-700/50 transition-colors duration-150 text-left
-                        ${value === currency.code ? 'bg-cyan-500/20 text-cyan-300' : 'text-white'}
-                    `}
-                    >
+                    className={`w-full flex items-center space-x-3 px-4 py-3 hover:bg-slate-700/50 transition-colors duration-150 text-left
+                      ${value === currency.code ? 'bg-cyan-500/20 text-cyan-300' : 'text-white'}`
+                    }
+                  >
                     <span className="text-lg">{currency.flag}</span>
                     <div className="flex-1">
-                        <div className="font-medium">{currency.code}</div>
-                        <div className="text-sm text-gray-400">{currency.name}</div>
+                      <div className="font-medium">{currency.code}</div>
+                      <div className="text-sm text-gray-400">{currency.name}</div>
                     </div>
-                    </button>
+                  </button>
                 ))
-                ) : (
+              ) : (
                 <div className="px-4 py-8 text-center text-gray-400">
-                    No tokens found
+                  No currencies found
                 </div>
-                )}
+              )}
             </div>
-            </div>
-
-            <div 
-                className="fixed inset-0 z-40"
-                onClick={() => setIsOpen(false)}
-            />
+          </div>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
         </>
       )}
     </div>

@@ -44,7 +44,7 @@ export default function Homepage() {
           className="bg-[#095564] text-white px-16 py-2 rounded-3xl border-y-1 text-sm md:text-base font-semibold shadow-lg hover:scale-105 transition-transform"
           onClick={async () => {
             const token = await getMe() // ganti sesuai penyimpanan token kamu
-            if (token._id) {
+            if (token) {
               window.location.href = "/transfer";
             } else {
               window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
