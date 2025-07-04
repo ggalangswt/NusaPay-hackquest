@@ -314,7 +314,7 @@ NusaPay not only facilitates individual fund transfers but is also designed to a
 
 ## Links
 
-[Github Repositories :] (https://github.com/ggalangswt/NusaPay-hackquest/tree/main)
+Github Repositories : https://github.com/ggalangswt/NusaPay-hackquest/tree/main
 
 Video Demo Application :
 
