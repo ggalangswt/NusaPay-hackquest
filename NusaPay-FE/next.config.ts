@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   images: {
   domains: ['lh3.googleusercontent.com'],
 },
+
 productionSourceMaps: true, // kalau mau aktif juga di production
 };
 
