@@ -9,8 +9,7 @@ import {
 } from "../controllers/transactionController";
 
 import {
-  addEmployeeDataToGroup,
-  editEmployeeDataFromGroup,
+  addOrUpdateEmployeeData,
   loadEmployeeDataFromGroup,
   addGroupName,
   addOrUpdateCompanyStats,
@@ -20,7 +19,6 @@ import {
 } from "../controllers/companyController";
 
 const router = express.Router();
-
 
 type RouteMethod = "get" | "post" | "put" | "delete";
 
@@ -64,20 +62,14 @@ const routes: RouteDefinition[] = [
   // Employee Data
   {
     method: "post",
-    path: "/addEmployeeDataToGroup",
-    action: addEmployeeDataToGroup,
+    path: "/addOrUpdateEmployeeData",
+    action: addOrUpdateEmployeeData,
   },
 
   {
     method: "post",
     path: "/deleteEmployeeDataFromGroup",
     action: deleteEmployeeDataFromGroup,
-  },
-
-  {
-    method: "post",
-    path: "/editEmployeeDataFromGroup",
-    action: editEmployeeDataFromGroup,
   },
 
   {
@@ -97,8 +89,6 @@ const routes: RouteDefinition[] = [
     path: "/loadGroupName",
     action: loadGroupName,
   },
-
-
 
   {
     method: "post",

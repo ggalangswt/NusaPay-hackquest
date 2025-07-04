@@ -3,6 +3,11 @@ import mongoose, { Schema } from "mongoose";
 const EmployeeDataSchema = new Schema(
   {
     // Company mana yang punya employee ini,
+
+    id: {
+      type: String,
+      required: true,
+    },
     companyId: {
       type: String,
       required: true,
@@ -30,7 +35,7 @@ const EmployeeDataSchema = new Schema(
     walletAddress: {
       type: String,
       required: true,
-    },  
+    },
     networkChainId: {
       type: Number,
       required: true,
@@ -39,18 +44,18 @@ const EmployeeDataSchema = new Schema(
       type: Number,
       required: true,
     },
-    currency : {
+    currency: {
       type: String,
       required: true,
     },
-    localCurrency : {
+    localCurrency: {
       type: String,
       required: true,
     },
-    groupId : {
-      type : String,
-      required : true
-    }
+    groupId: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true, // createdAt, updatedAt

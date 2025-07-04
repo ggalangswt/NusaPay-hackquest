@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Plus } from "lucide-react"
-import type { Recipient } from "@/types/recipient"
-import RecipientCard from "./RecipientCard"
+import { Plus } from "lucide-react";
+import type { Employee } from "@/types/recipient";
+import RecipientCard from "./RecipientCard";
 
 /**
  * Recipient Grid Component
@@ -13,28 +13,37 @@ import RecipientCard from "./RecipientCard"
  * - Menampilkan card "Add More" untuk menambah recipient baru
  */
 interface RecipientGridProps {
-  recipients: Recipient[]
-  onAddClick: () => void
-  onRemoveRecipient: (id: string) => void
-  onRecipientClick: (recipient: Recipient) => void
+  employees: Employee[];
+  onAddClick: () => void;
+  onRemoveRecipient: (id: string) => void;
+  onRecipientClick: (employee: Employee) => void;
 }
 
-export default function RecipientGrid({ recipients, onAddClick, onRemoveRecipient, onRecipientClick }: RecipientGridProps) {
+export default function RecipientGrid({
+  employees,
+  onAddClick,
+  onRemoveRecipient,
+  onRecipientClick,
+}: RecipientGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
       {/* Render semua recipient cards */}
-      {recipients.map((recipient) => (
-        <RecipientCard 
-          key={recipient._id} 
-          recipient={recipient} 
-          onRemove={() => onRemoveRecipient(recipient._id)}
-          onClick ={() =>onRecipientClick(recipient)}
-        />
-      ))}
+      {employees.map((employee) => {
+        console.log("Rendering employee with id:", employee.id);
+
+        return (
+          <RecipientCard
+            key={employee.id}
+            employee={employee}
+            onRemove={() => onRemoveRecipient(employee.id)}
+            onClick={() => onRecipientClick(employee)}
+          />
+        );
+      })}
 
       <AddMoreCard onClick={onAddClick} />
     </div>
-  )
+  );
 }
 
 /**
@@ -44,7 +53,7 @@ export default function RecipientGrid({ recipients, onAddClick, onRemoveRecipien
  * - Card khusus untuk trigger modal add beneficiary
  */
 interface AddMoreCardProps {
-  onClick: () => void
+  onClick: () => void;
 }
 
 function AddMoreCard({ onClick }: AddMoreCardProps) {
@@ -60,5 +69,5 @@ function AddMoreCard({ onClick }: AddMoreCardProps) {
         Add More
       </span>
     </button>
-  )
+  );
 }

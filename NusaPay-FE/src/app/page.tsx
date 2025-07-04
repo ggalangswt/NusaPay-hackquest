@@ -43,7 +43,7 @@ export default function Homepage() {
         <button
           className="bg-[#095564] text-white px-16 py-2 rounded-3xl border-y-1 text-sm md:text-base font-semibold shadow-lg hover:scale-105 transition-transform"
           onClick={async () => {
-            const token = await getMe() // ganti sesuai penyimpanan token kamu
+            const token = await getMe(); // ganti sesuai penyimpanan token kamu
             if (token) {
               window.location.href = "/transfer";
             } else {
@@ -51,7 +51,6 @@ export default function Homepage() {
             }
           }}
         >
-          
           Transfer Now
         </button>
       </div>

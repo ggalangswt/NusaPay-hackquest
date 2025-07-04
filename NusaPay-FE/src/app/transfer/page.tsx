@@ -21,8 +21,8 @@ import ProcessingModal from "@/components/modals/ProcessLoading";
 
 import { addGroupName, loadGroupName } from "@/api/groupService";
 import {
+  addOrUpdateEmployeeData,
   deleteEmployeeData,
-  editEmployeeData,
   loadEmployeeData,
 } from "@/api/employeeService";
 import { useUser } from "@/lib/UserContext";
@@ -184,7 +184,7 @@ export default function Dashboard() {
     console.log(data);
     if (data.id) {
       // Di dalam blok ini, TypeScript sekarang yakin bahwa data._id adalah 'string'.
-      await editEmployeeData({ ...data, id: data.id });
+      await addOrUpdateEmployeeData({ ...data, id: data.id });
       await handleTemplateSwitch(currentTemplate.groupId);
     } else {
       // Ini tambah baru
@@ -251,7 +251,7 @@ export default function Dashboard() {
 
         {currentTemplate ? (
           <RecipientGrid
-            recipients={currentTemplate.recipients}
+            employees={currentTemplate.recipients}
             onAddClick={() => setShowBeneficiaryModal(true)}
             onRemoveRecipient={handleRemoveRecipient}
             onRecipientClick={(recipient) => {

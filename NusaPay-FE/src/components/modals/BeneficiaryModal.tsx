@@ -1,14 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Employee} from "@/types/recipient";
+import type { Employee } from "@/types/recipient";
 import { Button } from "../ui/button";
 import FormField from "./FormField";
 import ModalOverlay from "./ModalOverlay";
-import { addEmployeeData } from "@/api/employeeService";
+import { addOrUpdateEmployeeData } from "@/api/employeeService";
 import { useTemplate } from "@/lib/TemplateContext";
 import { useUser } from "@/lib/UserContext";
-import { addRecipientToContract, getSupportedCurrencies } from "@/lib/smartContract";
+import {
+  addRecipientToContract,
+  getSupportedCurrencies,
+} from "@/lib/smartContract";
 import PriceFeed from "../transfer/PriceFeed";
 import CurrencySelector from "../transfer/CurrencySelector";
 import { id } from "ethers";
@@ -19,16 +22,15 @@ import { id } from "ethers";
  * - utawa pas dipencet +
  */
 
-
 interface BeneficiaryModalProps {
   employee?: Employee | null;
   onClose: () => void;
   onSave: (employee: Employee) => void;
 }
 
-interface BankInfo{
+interface BankInfo {
   code: string;
-  name: string
+  name: string;
 }
 
 export default function BeneficiaryModal({
@@ -50,17 +52,18 @@ export default function BeneficiaryModal({
   const { user } = useUser();
   const { currentTemplateId } = useTemplate();
   const modalTitle = isEditMode ? `${formData.name}` : "Add Beneficiary";
-  
-  const [isLoading, setIsLoading] = useState(false)
-  const [exchangeRate, setExchangeRate] = useState<number|null>(null)
-  const [supportedBanks, setSupportedBanks] = useState<BankInfo[]>([])
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  const [supportedBanks, setSupportedBanks] = useState<BankInfo[]>([]);
   const [bankValidation, setBankValidation] = useState<{
-    isValid: boolean
-    accountName?: String
-    isValidating: boolean
+    isValid: boolean;
+    accountName?: String;
+    isValidating: boolean;
   }>({
-    isValid: false, isValidating: false
-  })
+    isValid: false,
+    isValidating: false,
+  });
   useEffect(() => {
     if (isEditMode && employee) {
       setFormData({
@@ -83,21 +86,17 @@ export default function BeneficiaryModal({
     }
   }, [isEditMode, employee]);
 
-
-  
   //Handler buat update formfield
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
   };
 
-  const handletExchangeRateUpdate = (rate: number) =>{
-    setExchangeRate(rate)
-  }
+  const handletExchangeRateUpdate = (rate: number) => {
+    setExchangeRate(rate);
+  };
 
   //Hander buat submit + validasi input + save
   const handleSubmit = async () => {
-    
     //validasi
     if (
       !formData.name ||
@@ -110,12 +109,12 @@ export default function BeneficiaryModal({
     }
 
     if (!user || !user._id) {
-        alert("User data is not available. Please try again later.");
-        return;
+      alert("User data is not available. Please try again later.");
+      return;
     }
     if (!currentTemplateId) {
-        alert("No active template selected. Please select a template first.");
-        return;
+      alert("No active template selected. Please select a template first.");
+      return;
     }
 
     console.log(currentTemplateId);
@@ -144,7 +143,7 @@ export default function BeneficiaryModal({
       onSave(updatedEmployee);
     } else {
       onSave(commonPayload);
-      await addEmployeeData(commonPayload);
+      // await addOrUpdateEmployeeData(commonPayload);
     }
   };
 
@@ -169,7 +168,7 @@ export default function BeneficiaryModal({
               placeholder="Type here"
             />
           )}
-        
+
           <div className="grid grid-cols-2 gap-4">
             <CurrencySelector
               label="Currency"
@@ -185,9 +184,8 @@ export default function BeneficiaryModal({
               currencyType="fiat"
               placeholder="Select currency"
             />
-
           </div>
-          
+
           {/* <FormField
             label="Currency"
             value={formData.currency}
@@ -223,11 +221,9 @@ export default function BeneficiaryModal({
           <PriceFeed
             fromCurrency={formData.currency}
             toCurrency={formData.localCurrency}
-            amount={parseFloat(formData.amountTransfer)||0}
+            amount={parseFloat(formData.amountTransfer) || 0}
             onRateUpdate={handletExchangeRateUpdate}
-          >
-
-          </PriceFeed>
+          ></PriceFeed>
 
           <div className=" rounded-lg justify-end flex ">
             <p className="text-gray-300 text-sm text-center">

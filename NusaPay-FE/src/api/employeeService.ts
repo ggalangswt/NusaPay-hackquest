@@ -31,18 +31,10 @@ export const loadEmployeeData = async (
   }
 };
 
-export const addEmployeeData = async (
-  payload: AddEmployeePayload
-): Promise<void> => {
-  const response = await api.post("/addEmployeeDataToGroup", payload);
-  console.log(payload);
-  return response.data;
-};
-
-export const editEmployeeData = async (
+export const addOrUpdateEmployeeData = async (
   payload: editEmployeePayload
 ): Promise<void> => {
-  const response = await api.post("/editEmployeeDataFromGroup", payload);
+  const response = await api.post("/addOrUpdateEmployeeData", payload);
   return response.data;
 };
 
