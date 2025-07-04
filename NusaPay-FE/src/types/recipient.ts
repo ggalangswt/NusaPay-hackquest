@@ -1,19 +1,4 @@
-//data penerima
-
-// Keperluan UI (gaada companyId dll untuk ga ditampilin)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface Recipient{
-    _id: string
-    name: string
-    bankCode: string;
-    bankAccount: string //no rekening
-    bankAccountName: string //nama bank
-    amountTransfer: number// jumlah tf pengirim
-    currency: string //wallet si pengirim 
-    localCurrency: string //wallet penerima
-}
-
-  
+//data penerima  
 
 // Tipe asli dari data backend 
 export interface Employee{
@@ -29,6 +14,51 @@ export interface Employee{
     amountTransfer: number// jumlah tf pengirim
     currency: string //wallet si pengirim 
     localCurrency: string //wallet penerima
+}
+
+
+export interface AddEmployeePayload {
+  companyId: string;
+  companyName: string;
+  name: string;
+  bankCode: string;
+  bankAccount: string;
+  bankAccountName: string;
+  walletAddress: string;
+  networkChainId: number;
+  amountTransfer: number;
+  currency: string;
+  localCurrency: string;
+  groupId: string;
+}
+
+export interface editEmployeePayload {
+  _id: string;
+  bankCode: string;
+  bankAccount: string;
+  bankAccountName: string;
+  amountTransfer: number;
+}
+
+export interface ApiResponse<T> {
+  success: boolean
+  data?: T
+  error?: string
+  message?: string
+}
+
+export interface PriceFeedResponse{
+  fromCurrency: string
+  toCurrency: string
+  rate: number
+  lastUpdated: string
+}
+
+export interface TransactionResponse{
+  id: string
+  status: 'pending' | 'completed' | 'failed'
+  transactionHash?: string
+  timestamp: string
 }
 
 export interface LoadPayloadWithCompanyId {

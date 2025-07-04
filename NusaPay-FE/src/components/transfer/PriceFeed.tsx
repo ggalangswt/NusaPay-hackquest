@@ -4,7 +4,8 @@
 import { useState, useEffect } from "react";
 import { RefreshCw, TrendingUp, TrendingDown, Clock } from "lucide-react";
 
-import { getPriceFeedFromContract, type PriceFeedData } from "@/lib/smartContract";
+import { type PriceFeedData } from "@/lib/smartContract";
+import { getPriceFeedFromBE } from "@/api/transactionService";
 
 interface PriceFeedProps {
   fromCurrency: string;
@@ -23,51 +24,7 @@ export default function PriceFeed({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshTime, setLastRefreshTime] = useState<string>("");
-
-  // Simulasi data untuk fallback jika smart contract tidak tersedia
-  const simulatePriceFeed = async (from: string, to: string): Promise<PriceFeedData> => {
-    // Simulasi delay API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simulasi rate berdasarkan currency pair
-    const baseRates: { [key: string]: number } = {
-      'USD-IDR': 15750,
-      'EUR-IDR': 17200,
-      'GBP-IDR': 19800,
-      'JPY-IDR': 105,
-      'SGD-IDR': 11650,
-      'MYR-IDR': 3420,
-      'BTC-USD': 45000,
-      'ETH-USD': 2800,
-      'BNB-USD': 320,
-      'MATIC-USD': 0.85,
-    };
-    
-    const pairKey = `${from}-${to}`;
-    const reversePairKey = `${to}-${from}`;
-    
-    let rate = baseRates[pairKey] || baseRates[reversePairKey];
-    
-    if (!rate) {
-      // Simulasi rate random untuk pair yang tidak ada
-      rate = Math.random() * 1000 + 0.1;
-    } else if (baseRates[reversePairKey]) {
-      // Jika menggunakan reverse pair, invert rate
-      rate = 1 / rate;
-    }
-    
-    // Tambahkan sedikit variasi untuk simulasi perubahan harga
-    const variation = (Math.random() - 0.5) * 0.02; // ±1% variation
-    rate = rate * (1 + variation);
-    
-    return {
-      fromCurrency: from,
-      toCurrency: to,
-      rate,
-      lastUpdated: new Date().toISOString(),
-    };
-  };
-
+  
   const fetchPriceFeed = async (useSmartContract: boolean = true) => {
     if (!fromCurrency || !toCurrency || fromCurrency === toCurrency) {
       setPriceFeedData(null);
@@ -78,27 +35,12 @@ export default function PriceFeed({
     setError(null);
 
     try {
-      let data: PriceFeedData;
+      const data = await getPriceFeedFromBE(fromCurrency, toCurrency)      
+      setPriceFeedData(data)
+      setLastRefreshTime(new Date().toLocaleTimeString())
       
-      if (useSmartContract) {
-        try {
-          // Coba ambil dari smart contract dulu
-          data = await getPriceFeedFromContract(fromCurrency, toCurrency);
-        } catch (contractError) {
-          console.warn('Smart contract failed, falling back to simulation:', contractError);
-          // Jika smart contract gagal, gunakan simulasi
-          data = await simulatePriceFeed(fromCurrency, toCurrency);
-        }
-      } else {
-        // Gunakan simulasi langsung
-        data = await simulatePriceFeed(fromCurrency, toCurrency);
-      }
-
-      setPriceFeedData(data);
-      setLastRefreshTime(new Date().toLocaleTimeString());
-      
-      if (onRateUpdate) {
-        onRateUpdate(data.rate);
+      if(onRateUpdate){
+        onRateUpdate(data.rate)
       }
     } catch (error) {
       console.error('Error fetching price feed:', error);
@@ -123,17 +65,8 @@ export default function PriceFeed({
 
   // Hitung converted amount
   const convertedAmount = priceFeedData && amount 
-    ? (amount * priceFeedData.rate).toFixed(2)
+    ? (amount * priceFeedData.rate)
     : null;
-
-  const formatCurrency = (value: number, currency: string): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency === 'IDR' ? 'IDR' : 'USD',
-      minimumFractionDigits: currency === 'IDR' ? 0 : 2,
-      maximumFractionDigits: currency === 'IDR' ? 0 : 6,
-    }).format(value);
-  };
 
   if (!fromCurrency || !toCurrency || fromCurrency === toCurrency) {
     return (
@@ -197,7 +130,10 @@ export default function PriceFeed({
               <div className="flex items-center justify-between">
                 <span className="text-gray-300 text-sm">They receive:</span>
                 <span className="text-green-300 font-medium">
-                  {parseFloat(convertedAmount).toLocaleString()} {toCurrency}
+                  {convertedAmount.toLocaleString('en-US', {
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2
+                  })}
                 </span>
               </div>
             </div>

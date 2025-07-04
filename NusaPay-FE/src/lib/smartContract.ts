@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import payrollABI from "@/abi/payrollABI.json"
 
 export interface PriceFeedData {
   fromCurrency: string;
@@ -15,12 +16,7 @@ export interface SmartContractResponse {
 
 const SMART_CONTRACT_CONFIG = {
   address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "",
-  abi: [
-    // Add your actual ABI here
-    // Example functions that might be in your contract:
-    // "function getPriceFeed(string memory fromCurrency, string memory toCurrency) external view returns (uint256)",
-    // "function addRecipient(string memory name, string memory bankAccount, uint256 amount) external"
-  ],
+  abi:  payrollABI,
   networkId: process.env.NEXT_PUBLIC_NETWORK_ID || "4202",
 };
 
@@ -68,56 +64,56 @@ export const initializeWeb3 = async () => {
   }
 };
 
-export const getPriceFeedFromContract = async (
-  fromCurrency: string,
-  toCurrency: string
-): Promise<PriceFeedData> => {
-  try {
-    // Validate input parameters
-    if (!fromCurrency || !toCurrency) {
-      throw new Error('Both fromCurrency and toCurrency are required');
-    }
+// export const getPriceFeedFromBE = async (
+//   fromCurrency: string,
+//   toCurrency: string
+// ): Promise<PriceFeedData> => {
+//   try {
+//     // Validate input parameters
+//     if (!fromCurrency || !toCurrency) {
+//       throw new Error('Both fromCurrency and toCurrency are required');
+//     }
     
-    if (!isValidCurrencyPair(fromCurrency, toCurrency)) {
-      throw new Error(`Invalid currency pair: ${fromCurrency}/${toCurrency}`);
-    }
+//     if (!isValidCurrencyPair(fromCurrency, toCurrency)) {
+//       throw new Error(`Invalid currency pair: ${fromCurrency}/${toCurrency}`);
+//     }
     
-    const { contract } = await initializeWeb3();
+//     const { contract } = await initializeWeb3();
     
-    // Check if contract has the required function
-    if (!contract.getPriceFeed) {
-      throw new Error('Contract does not have getPriceFeed function');
-    }
+//     // Check if contract has the required function
+//     if (!contract.getPriceFeed) {
+//       throw new Error('Contract does not have getPriceFeed function');
+//     }
     
-    // Call getPriceFeed function from smart contract
-    const result = await contract.getPriceFeed(fromCurrency, toCurrency);
+//     // Call getPriceFeed function from smart contract
+//     const result = await contract.getPriceFeed(fromCurrency, toCurrency);
     
-    // Handle different ethers versions
-    let rate: number;
-    if (typeof result === 'bigint') {
-      // ethers v6 returns bigint
-      rate = parseFloat(ethers.formatUnits(result, 18));
-    } else {
-      // ethers v5 returns BigNumber
-      rate = parseFloat(ethers.formatUnits(result, 18));
-    }
+//     // Handle different ethers versions
+//     let rate: number;
+//     if (typeof result === 'bigint') {
+//       // ethers v6 returns bigint
+//       rate = parseFloat(ethers.formatUnits(result, 18));
+//     } else {
+//       // ethers v5 returns BigNumber
+//       rate = parseFloat(ethers.formatUnits(result, 18));
+//     }
     
-    // Validate rate
-    if (isNaN(rate) || rate <= 0) {
-      throw new Error('Invalid rate received from contract');
-    }
+//     // Validate rate
+//     if (isNaN(rate) || rate <= 0) {
+//       throw new Error('Invalid rate received from contract');
+//     }
     
-    return {
-      fromCurrency,
-      toCurrency,
-      rate,
-      lastUpdated: new Date().toISOString(),
-    };
-  } catch (error) {
-    console.error('Error getting price feed:', error);
-    throw error;
-  }
-};
+//     return {
+//       fromCurrency,
+//       toCurrency,
+//       rate,
+//       lastUpdated: new Date().toISOString(),
+//     };
+//   } catch (error) {
+//     console.error('Error getting price feed:', error);
+//     throw error;
+//   }
+// };
 
 export const addRecipientToContract = async (
   name: string,

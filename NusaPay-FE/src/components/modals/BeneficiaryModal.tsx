@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Employee, Recipient } from "@/types/recipient";
+import type { Employee} from "@/types/recipient";
 import { Button } from "../ui/button";
 import FormField from "./FormField";
 import ModalOverlay from "./ModalOverlay";
-import { addEmployeeData } from "../../api";
+import { addEmployeeData } from "@/api/employeeService";
 import { useTemplate } from "@/lib/TemplateContext";
 import { useUser } from "@/lib/UserContext";
 import { addRecipientToContract, getSupportedCurrencies } from "@/lib/smartContract";
 import PriceFeed from "../transfer/PriceFeed";
 import CurrencySelector from "../transfer/CurrencySelector";
+import { id } from "ethers";
 /**
  * Add Beneficiary Modal Component
  * Fungsi:
@@ -20,9 +21,9 @@ import CurrencySelector from "../transfer/CurrencySelector";
 
 
 interface BeneficiaryModalProps {
-  employee?: Recipient | null;
+  employee?: Employee | null;
   onClose: () => void;
-  onSave: (employee: Employee | Omit<Recipient, "_id">) => void;
+  onSave: (employee: Employee) => void;
 }
 
 interface BankInfo{
@@ -49,6 +50,7 @@ export default function BeneficiaryModal({
   const { user } = useUser();
   const { currentTemplateId } = useTemplate();
   const modalTitle = isEditMode ? `${formData.name}` : "Add Beneficiary";
+  
   const [isLoading, setIsLoading] = useState(false)
   const [exchangeRate, setExchangeRate] = useState<number|null>(null)
   const [supportedBanks, setSupportedBanks] = useState<BankInfo[]>([])
@@ -72,8 +74,8 @@ export default function BeneficiaryModal({
     } else {
       setFormData({
         name: "",
-        currency: "",
-        localCurrency: "",
+        currency: "USDC",
+        localCurrency: "IDR",
         bankAccountName: "",
         bankAccount: "",
         amountTransfer: "",
@@ -119,6 +121,7 @@ export default function BeneficiaryModal({
     console.log(currentTemplateId);
 
     const commonPayload = {
+      id: crypto.randomUUID(),
       companyId: user._id, // TODO: Ambil dari cookie/session nanti
       companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!, // TODO: Ambil dari auth
       name: formData.name,
@@ -136,7 +139,7 @@ export default function BeneficiaryModal({
     if (isEditMode && employee) {
       const updatedEmployee = {
         ...commonPayload,
-        id: employee._id,
+        id: employee.id,
       };
       onSave(updatedEmployee);
     } else {
@@ -172,12 +175,14 @@ export default function BeneficiaryModal({
               label="Currency"
               value={formData.currency}
               onChange={(value) => handleInputChange("currency", value)}
+              currencyType="crypto"
               placeholder="Select currency"
             />
             <CurrencySelector
               label="Local Currency"
               value={formData.localCurrency}
               onChange={(value) => handleInputChange("localCurrency", value)}
+              currencyType="fiat"
               placeholder="Select currency"
             />
 
