@@ -11,6 +11,7 @@ import { FaHistory } from "react-icons/fa";
 import { BiLogOutCircle } from "react-icons/bi";
 import { ConnectButton } from "./connect-button";
 import { useAccount } from "wagmi";
+import { logout } from "@/api";
 
 interface UserData {
   _id: string;
@@ -255,16 +256,11 @@ const Navbar: React.FC = () => {
                   relative after:absolute after:bottom-[-1px] after:left-1/2 after:-translate-x-1/2
              after:w-0 after:h-[2px] after:bg-red-400/55 after:rounded-full after:transition-all after:duration-300
              hover:after:w-[84%]"
-                onClick={async () => {
-                  await fetch(
-                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`,
-                    {
-                      method: "POST",
-                      credentials: "include",
-                    }
-                  );
-                  window.location.reload();
-                }}
+             onClick={async () => {
+              const response = await logout();
+              console.log(response)
+              window.location.reload();
+            }}
               >
                 <span className="flex items-center gap-2">
                   <BiLogOutCircle className="scale-150 w-5" />
@@ -365,17 +361,15 @@ const Navbar: React.FC = () => {
               History Transaction
             </button>
             <button
-              className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] text-red-400 rounded-md"
-              onClick={async () => {
-                await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/logout`, {
-                  method: "POST",
-                  credentials: "include",
-                });
-                window.location.reload();
-              }}
-            >
-              Sign Out
-            </button>
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] text-red-400 rounded-md"
+                    onClick={async () => {
+                      const response = await logout();
+                      console.log(response)
+                      window.location.reload();
+                    }}
+                  >
+                    Sign Out
+                  </button>
           </div>
         )}
       </div>
