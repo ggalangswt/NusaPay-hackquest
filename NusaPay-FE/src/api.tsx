@@ -39,11 +39,10 @@ interface LoadEmployeeResponse {
 
 
 
-// export const logout = async () => {
-//   await api.post("/logout"); // backend akan hapus cookie
-// };
-
-// };
+export const logout = async () => {
+  const response = await api.post("/logout"); // backend akan hapus cookie
+  return response.data.message
+};
 
 //buat ke smartcontract
 

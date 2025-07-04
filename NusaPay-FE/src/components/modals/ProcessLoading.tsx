@@ -26,23 +26,18 @@ interface ProcessStage{
 const PROCESS_STAGES: ProcessStage[] =[
     {
         id: "tahap1",
-        title: "Sending Data to Smart Contract ",
-        duration: 0,
+        title: "Sending Employee Data to Smart Contract ",
+        duration: 2000,
     },
     {
         id: "tahap2",
-        title: "Loading proses 2",
-        duration: 0,
+        title: "Token Transfer Process Using Chainlink CCIP ",
+        duration: 5000,
     },
     {
         id: "tahap3",
-        title: "Loading proses 3",
-        duration: 2500,
-    },
-    {
-        id: "tahap4",
-        title: "Loading proses 4",
-        duration: 1500,
+        title: "Minting Process with IDRX API",
+        duration: 5000,
     },
 ]
 
