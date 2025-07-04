@@ -93,6 +93,7 @@ export async function loadGroupName(req: Request, res: Response) {
 export async function addEmployeeDataToGroup(req: Request, res: Response) {
   // bankCode dari FE harus bisa nge enum sesuai dengan bankAccountnya
   const {
+    id,
     companyId,
     companyName,
     name,
@@ -109,6 +110,7 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
 
   try {
     const newEmployeeData = new EmployeeModel({
+      id,
       companyId,
       companyName,
       name,
@@ -126,11 +128,11 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
     const saved = await newEmployeeData.save();
 
     const updatedGroup = await GroupOfEmployeeData.findOneAndUpdate(
-      { groupId },
+      { id },
       {
         $push: {
           employees: {
-            id: saved._id,
+            id: saved.id,
             name: saved.name,
           },
         },
