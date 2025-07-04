@@ -8,6 +8,8 @@
 
 ### 
 
+More on: https://nusapay.gitbook.io/nusapay-on-metamask
+
 [](https://nusapay.gitbook.io/nusapay-on-metamask#introduction-to-nusapay)
 
 ### Introduction to NusaPay
