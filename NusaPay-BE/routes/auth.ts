@@ -12,50 +12,57 @@ const router: Router = express.Router();
 // CHECK AUTH STATUS
 // check auth
 
-router.get("/check-auth", async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies?.user_session;
-  if (!token) {
-    console.log("❌ Token tidak ditemukan");
-    res.status(401).json({ authenticated: false, message: "Token not found" });
-  }
-  else{
-    try {
-      console.log(token)
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-        _id: string;
-        email: string;
-      };
-  
-      console.log(decoded)
-  
-      const company = await CompanyDataModel.findOne({
-        _id: decoded._id,
-        email: decoded.email,
-      });
-  
-      if (!company) {
-        console.log("❌ Token tidak valid");
-        res.status(401).json({ authenticated: false, message: "Invalid token" });
-      }
-      else{
-        console.log("✅ Token valid");
-  
-        // ✅ Kirimkan data perusahaan ke FE
-        res.json({
-          _id: company._id,
-          email: company.email,
-          companyName: company.companyName,
-          profilePicture : company.profilePicture
+router.get(
+  "/check-auth",
+  async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.cookies?.user_session;
+    if (!token) {
+      console.log("❌ Token tidak ditemukan");
+      res
+        .status(401)
+        .json({ authenticated: false, message: "Token not found" });
+      return;
+    } else {
+      try {
+        // console.log(token);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+          _id: string;
+          email: string;
+        };
+
+        // console.log(decoded);
+
+        const company = await CompanyDataModel.findOne({
+          _id: decoded._id,
+          email: decoded.email,
         });
+
+        if (!company) {
+          console.log("❌ Token tidak valid");
+          res
+            .status(401)
+            .json({ authenticated: false, message: "Invalid token" });
+          return;
+        } else {
+          // console.log("✅ Token valid");
+
+          // ✅ Kirimkan data perusahaan ke FE
+          res.json({
+            _id: company._id,
+            email: company.email,
+            companyName: company.companyName,
+            profilePicture: company.profilePicture,
+          });
+          return;
+        }
+      } catch (err) {
+        console.error("❌ Error saat verifikasi token:", err);
+        res.status(401).json({ authenticated: false, message: "Token error" });
+        return;
       }
-    } catch (err) {
-      console.error("❌ Error saat verifikasi token:", err);
-      res.status(401).json({ authenticated: false, message: "Token error" });
     }
   }
-
-  
-});
+);
 
 // GOOGLE STRATEGY
 passport.use(
@@ -104,7 +111,6 @@ passport.deserializeUser((user, done) => {
   done(null, user!);
 });
 
-
 // GOOGLE AUTH ENDPOINT
 router.get(
   "/auth/google",
@@ -148,8 +154,10 @@ router.get(
       });
 
       res.redirect(`${process.env.FRONTEND_URL}/transfer`);
+      return;
     } else {
       res.redirect(`${process.env.FRONTEND_URL}/auth/error`);
+      return;
     }
   }
 );
@@ -157,12 +165,16 @@ router.get(
 // LOGOUT
 router.post("/logout", (req: Request, res: Response) => {
   req.logout((err) => {
-    if (err) return res.status(500).json({ message: "Logout gagal" });
+    if (err) {
+      res.status(500).json({ message: "Logout gagal" });
+      return;
+    }
 
     req.session.destroy(() => {
       res.clearCookie("user_session");
-      
+
       res.status(200).json({ message: "Logout sukses" });
+      return;
     });
   });
 });

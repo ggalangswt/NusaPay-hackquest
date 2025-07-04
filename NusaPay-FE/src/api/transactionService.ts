@@ -1,24 +1,29 @@
-import { api } from './client';
-import type { PriceFeedResponse, TransactionResponse, ApiResponse } from '@/types/recipient';
-import { Invoice } from '@/types/invoice';
-
+import { api } from "./client";
+import type {
+  PriceFeedResponse,
+  TransactionResponse,
+  ApiResponse,
+} from "@/types/recipient";
+import { Invoice } from "@/types/invoice";
 
 export const getPriceFeedFromBE = async (
   fromCurrency: string,
   toCurrency: string
-): Promise<PriceFeedResponse> => {
+): Promise<any> => {
   try {
-    const response = await api.get<ApiResponse<PriceFeedResponse>>(
-      `/price-feed/${fromCurrency}/${toCurrency}`
+    const response = await api.post<ApiResponse<PriceFeedResponse>>(
+      `/getAllRatesToUsdc`,
+      { fromCurrency, toCurrency } // ← kirim dalam body
     );
-    
-    if (response.data.success && response.data.data) {
-      return response.data.data;
+    console.log(response);
+    if (response.data) {
+      console.log(response.data);
+      return response.data; // ← pastikan ini sesuai dengan struktur data yang diharapkan
     } else {
-      throw new Error(response.data.message || 'Failed to fetch price feed');
+      throw new Error(response.data || "Failed to fetch price feed");
     }
   } catch (error) {
-    console.error('Error fetching price feed from API:', error);
+    console.error("Error fetching price feed from API:", error);
     throw error;
   }
 };
@@ -28,27 +33,30 @@ export const getMultiplePriceFeeds = async (
 ): Promise<PriceFeedResponse[]> => {
   try {
     const response = await api.post<ApiResponse<PriceFeedResponse[]>>(
-      '/price-feed/multiple',
+      "/price-feed/multiple",
       { pairs }
     );
-    
-    if (response.data.success && response.data.data) {
+
+    if (response.data.data) {
       return response.data.data;
     } else {
-      throw new Error(response.data.message || 'Failed to fetch price feeds');
+      throw new Error(response.data.message || "Failed to fetch price feeds");
     }
   } catch (error) {
-    console.error('Error fetching multiple price feeds:', error);
+    console.error("Error fetching multiple price feeds:", error);
     throw error;
   }
 };
 
 export const initiateTransfer = async (
-  recipientId: string, amount: number, fromCurrency: string, toCurrency: string
+  recipientId: string,
+  amount: number,
+  fromCurrency: string,
+  toCurrency: string
 ): Promise<TransactionResponse> => {
-  try{
+  try {
     const response = await api.post<ApiResponse<TransactionResponse>>(
-      '/transactions/transfer',
+      "/transactions/transfer",
       {
         recipientId,
         amount,
@@ -56,17 +64,26 @@ export const initiateTransfer = async (
         toCurrency,
       }
     );
-    if(response.data.success && response.data.data){
-      return response.data.data
-    } else{
-      throw new Error(response.data.message || "Failed to get transaction status")
-    } 
-  }catch(error){
-      console.error('Error getting transaction status:', error)
-      throw error
-  } 
-}
+    if (response.data.data) {
+      return response.data.data;
+    } else {
+      throw new Error(
+        response.data.message || "Failed to get transaction status"
+      );
+    }
+  } catch (error) {
+    console.error("Error getting transaction status:", error);
+    throw error;
+  }
+};
 
+// export const addInvoiceData = async (
+//   payload: InvoiceCreationPayload
+// ): Promise<any> => {
+//   const response = await api.post("/addInvoiceData", payload);
+//   console.log(payload)
+//   return response.data;
+// };
 
 export const loadInvoiceData = async (payload: {
   txId: string;

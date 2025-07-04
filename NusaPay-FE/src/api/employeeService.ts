@@ -1,11 +1,11 @@
 import { api } from "./client";
 import type {
-    Employee,
-    AddEmployeePayload,
-    editEmployeePayload,
-    LoadPayloadForGroupId,
-    ApiResponse,
-} from '@/types/recipient'
+  Employee,
+  AddEmployeePayload,
+  editEmployeePayload,
+  LoadPayloadForGroupId,
+  ApiResponse,
+} from "@/types/recipient";
 
 export const loadEmployeeData = async (
   payload: LoadPayloadForGroupId
@@ -16,16 +16,16 @@ export const loadEmployeeData = async (
       payload
     );
     console.log(response);
-    if (response.data.success && response.data.data) {
+    if (response.data.data) {
       return response.data.data;
     } else {
-      throw new Error(response.data.message || 'Failed to load employee data');
+      throw new Error(response.data.message || "Failed to load employee data");
     }
-  } catch (error: unknown) { 
+  } catch (error: unknown) {
     if (error instanceof Error) {
-        console.error("Failed to load employee data:", error.message);
+      console.error("Failed to load employee data:", error.message);
     } else {
-        console.error("An unknown error occurred:", error);
+      console.error("An unknown error occurred:", error);
     }
     throw error;
   }

@@ -11,18 +11,19 @@ export const loadGroupName = async (
       payload
     );
     console.log(response.data.data);
-    if (response.data.success && response.data.data) {
+    if (response.data.data) {
       return response.data.data;
     } else {
       // Jika tidak, lemparkan error dengan pesan dari server
-      throw new Error(response.data.message || 'Failed to load employee data');
+      throw new Error(response.data.message || "Failed to load employee data");
     }
-  } catch (error: unknown) { // ✅ SOLUSI 3: Ganti 'any' dengan 'unknown'
+  } catch (error: unknown) {
+    // ✅ SOLUSI 3: Ganti 'any' dengan 'unknown'
     // Lakukan pemeriksaan tipe sebelum mengakses properti
     if (error instanceof Error) {
-        console.error("Failed to load group name:", error.message);
+      console.error("Failed to load group name:", error.message);
     } else {
-        console.error("An unknown error occurred:", error);
+      console.error("An unknown error occurred:", error);
     }
     throw error;
   }

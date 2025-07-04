@@ -11,7 +11,7 @@ import { FaHistory } from "react-icons/fa";
 import { BiLogOutCircle } from "react-icons/bi";
 import { ConnectButton } from "./connect-button";
 import { useAccount } from "wagmi";
-import { logout } from "@/api";
+import { logout } from "@/api/client";
 
 interface UserData {
   _id: string;
@@ -256,11 +256,11 @@ const Navbar: React.FC = () => {
                   relative after:absolute after:bottom-[-1px] after:left-1/2 after:-translate-x-1/2
              after:w-0 after:h-[2px] after:bg-red-400/55 after:rounded-full after:transition-all after:duration-300
              hover:after:w-[84%]"
-             onClick={async () => {
-              const response = await logout();
-              console.log(response)
-              window.location.reload();
-            }}
+                onClick={async () => {
+                  const response = await logout();
+                  console.log(response);
+                  window.location.reload();
+                }}
               >
                 <span className="flex items-center gap-2">
                   <BiLogOutCircle className="scale-150 w-5" />
@@ -298,93 +298,93 @@ const Navbar: React.FC = () => {
       </nav>
 
       {/* Mobile Menu Overlay */}
-{mobileMenuOpen && (
-  <div className="lg:hidden fixed top-[74px] left-0 w-full bg-[#10151a] text-white z-40 flex flex-col items-center py-6 space-y-6">
-    {navItems.map(({ label, href, external }) => (
-      <Link
-        key={label}
-        href={href}
-        target={external ? "_blank" : "_self"}
-        rel={external ? "noopener noreferrer" : undefined}
-        className="text-lg font-medium"
-        onClick={() => setMobileMenuOpen(false)}
-      >
-        {label}
-      </Link>
-    ))}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed top-[74px] left-0 w-full bg-[#10151a] text-white z-40 flex flex-col items-center py-6 space-y-6">
+          {navItems.map(({ label, href, external }) => (
+            <Link
+              key={label}
+              href={href}
+              target={external ? "_blank" : "_self"}
+              rel={external ? "noopener noreferrer" : undefined}
+              className="text-lg font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {label}
+            </Link>
+          ))}
 
-    {/* Connect Button in Mobile */}
-    {user ? (
-      <div className="relative w-full flex flex-col items-center">
-        <button
-          className="text-sm text-white px-4 py-2 rounded-full bg-[#1A1A1A] hover:bg-[#2A2A2A] border border-white/20 transition-colors duration-200"
-          onClick={() => setShowMobileDropdown((prev) => !prev)}
-        >
-          {user.email}
-        </button>
+          {/* Connect Button in Mobile */}
+          {user ? (
+            <div className="relative w-full flex flex-col items-center">
+              <button
+                className="text-sm text-white px-4 py-2 rounded-full bg-[#1A1A1A] hover:bg-[#2A2A2A] border border-white/20 transition-colors duration-200"
+                onClick={() => setShowMobileDropdown((prev) => !prev)}
+              >
+                {user.email}
+              </button>
 
-        {/* Dropdown */}
-        {showMobileDropdown && (
-          <div className="mt-3 bg-[#1A1A1A] w-11/12 max-w-xs rounded-xl shadow-lg p-4 text-sm border border-white/10 z-50">
-            {/* Status */}
-            <p
-              className={`text-xs font-medium mb-3 ${
-                isConnected ? "text-cyan-300" : "text-gray-400"
-              }`}
-            >
-              {isConnected ? "Connected" : "Not Connected"}
-            </p>
+              {/* Dropdown */}
+              {showMobileDropdown && (
+                <div className="mt-3 bg-[#1A1A1A] w-11/12 max-w-xs rounded-xl shadow-lg p-4 text-sm border border-white/10 z-50">
+                  {/* Status */}
+                  <p
+                    className={`text-xs font-medium mb-3 ${
+                      isConnected ? "text-cyan-300" : "text-gray-400"
+                    }`}
+                  >
+                    {isConnected ? "Connected" : "Not Connected"}
+                  </p>
 
-            {/* Menu Items */}
-            <button
-              className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
-              onClick={() => window.location.href = "/transfer"}
-            >
-              Connect Wallet
-            </button>
-            <button
-              className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
-              onClick={() => window.location.href = "/soon"}
-            >
-              My Profile
-            </button>
-            <button
-              className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
-              onClick={() => window.location.href = "/soon"}
-            >
-              Wallet Account
-            </button>
-            <button
-              className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
-              onClick={() => window.location.href = "/soon"}
-            >
-              History Transaction
-            </button>
-            <button
+                  {/* Menu Items */}
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
+                    onClick={() => (window.location.href = "/transfer")}
+                  >
+                    Connect Wallet
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
+                    onClick={() => (window.location.href = "/soon")}
+                  >
+                    My Profile
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
+                    onClick={() => (window.location.href = "/soon")}
+                  >
+                    Wallet Account
+                  </button>
+                  <button
+                    className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] rounded-md"
+                    onClick={() => (window.location.href = "/soon")}
+                  >
+                    History Transaction
+                  </button>
+                  <button
                     className="w-full text-left px-3 py-2 hover:bg-[#2A2A2A] text-red-400 rounded-md"
                     onClick={async () => {
                       const response = await logout();
-                      console.log(response)
+                      console.log(response);
                       window.location.reload();
                     }}
                   >
                     Sign Out
                   </button>
-          </div>
-        )}
-      </div>
-    ) : (
-      <button
-        className="bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] text-white font-semibold px-6 py-3 rounded-full shadow border-y-1"
-        onClick={() => {
-          window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
-        }}
-      >
-        Get Started
-      </button>
-    )}
-  </div>
-)}
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              className="bg-gradient-to-r from-[#1F1F1F] to-[#00B8FF] text-white font-semibold px-6 py-3 rounded-full shadow border-y-1"
+              onClick={() => {
+                window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
+              }}
+            >
+              Get Started
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

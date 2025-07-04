@@ -1,6 +1,5 @@
 import axios, { AxiosError } from "axios";
 
-
 interface ErrorResponse {
   message?: string;
 }
@@ -25,13 +24,18 @@ api.interceptors.response.use(
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('authToken')
-    if(token){
-      config.headers.Authorization = `Bearer ${token}`
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return config
+    return config;
   },
-  (error) =>{
-    return Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
   }
-)
+);
+
+export const logout = async () => {
+  const response = await api.post("/logout"); // backend akan hapus cookie
+  return response.data.message;
+};

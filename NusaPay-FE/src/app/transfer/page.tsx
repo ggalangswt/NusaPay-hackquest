@@ -19,9 +19,12 @@ import {
 import type { Template } from "@/lib/template";
 import ProcessingModal from "@/components/modals/ProcessLoading";
 
-
-import{addGroupName, loadGroupName} from "@/api/groupService"
-import { deleteEmployeeData, editEmployeeData, loadEmployeeData } from "@/api/employeeService";
+import { addGroupName, loadGroupName } from "@/api/groupService";
+import {
+  deleteEmployeeData,
+  editEmployeeData,
+  loadEmployeeData,
+} from "@/api/employeeService";
 import { useUser } from "@/lib/UserContext";
 import { useRouter } from "next/navigation";
 
@@ -53,7 +56,7 @@ export default function Dashboard() {
           groupId: selected.groupId,
         });
 
-        const employeesFromBackend: Employee[] = response
+        const employeesFromBackend: Employee[] = response;
 
         const updatedTemplate: Template = {
           ...selected,
@@ -72,14 +75,14 @@ export default function Dashboard() {
   // Fetch all templates first
   useEffect(() => {
     if (loading || !user?._id || hasFetched) return;
-  
+
     const fetchTemplatesAndEmployees = async () => {
       try {
         const groupTemplates = await loadGroupName({
           companyId: user._id,
         });
-        console.log(groupTemplates)
-  
+        console.log(groupTemplates);
+
         const templatesWithEmptyRecipients: Template[] = groupTemplates.map(
           (group: any) => ({
             groupId: group.groupId,
@@ -91,19 +94,19 @@ export default function Dashboard() {
             updatedAt: new Date(group.updatedAt),
           })
         );
-  
+
         setTemplates(templatesWithEmptyRecipients);
-  
+
         if (templatesWithEmptyRecipients.length > 0) {
           await handleTemplateSwitch(templatesWithEmptyRecipients[0].groupId);
         }
-  
+
         setHasFetched(true);
       } catch (err) {
         console.error("Failed to fetch templates", err);
       }
     };
-  
+
     fetchTemplatesAndEmployees();
   }, [loading, user, hasFetched, handleTemplateSwitch]);
 
@@ -173,26 +176,23 @@ export default function Dashboard() {
     updateCurrentTemplateRecipients(updatedList);
   };
 
+  const handleSaveBeneficiary = async (data: Employee) => {
+    if (!currentTemplate) return;
 
+    // ✅ PERBAIKAN: Ubah kondisi 'if' ini.
+    // Cek ini memastikan 'data._id' ada dan bukan string kosong.
+    console.log(data);
+    if (data.id) {
+      // Di dalam blok ini, TypeScript sekarang yakin bahwa data._id adalah 'string'.
+      await editEmployeeData({ ...data, id: data.id });
+      await handleTemplateSwitch(currentTemplate.groupId);
+    } else {
+      // Ini tambah baru
+      handleAddRecipient(data);
+    }
 
-  const handleSaveBeneficiary = async (
-  data: Employee
-) => {
-  if (!currentTemplate) return;
-
-  // ✅ PERBAIKAN: Ubah kondisi 'if' ini.
-  // Cek ini memastikan 'data._id' ada dan bukan string kosong.
-  if (data.id) { 
-    // Di dalam blok ini, TypeScript sekarang yakin bahwa data._id adalah 'string'.
-    await editEmployeeData({ ...data, _id: data.id });
-    await handleTemplateSwitch(currentTemplate.groupId);
-  } else {
-    // Ini tambah baru
-    handleAddRecipient(data);
-  }
-
-  setShowBeneficiaryModal(false);
-};
+    setShowBeneficiaryModal(false);
+  };
 
   if (loading) {
     return (
@@ -214,11 +214,11 @@ export default function Dashboard() {
         txId: "123",
         companyId: user._id,
         templateName: currentTemplate.nameOfGroup,
-        recipients: currentTemplate.recipients.map(r =>({
+        recipients: currentTemplate.recipients.map((r) => ({
           employeeId: r.id,
           amount: r.amountTransfer,
-        }))
-      }
+        })),
+      };
       // const newInvoice = await addInvoiceData(creationPayload);
       // setNewlyCreatedInvoiceId(newInvoice._id)
 

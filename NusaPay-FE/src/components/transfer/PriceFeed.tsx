@@ -14,17 +14,19 @@ interface PriceFeedProps {
   onRateUpdate?: (rate: number) => void;
 }
 
-export default function PriceFeed({ 
-  fromCurrency, 
-  toCurrency, 
-  amount, 
-  onRateUpdate 
+export default function PriceFeed({
+  fromCurrency,
+  toCurrency,
+  amount,
+  onRateUpdate,
 }: PriceFeedProps) {
-  const [priceFeedData, setPriceFeedData] = useState<PriceFeedData | null>(null);
+  const [priceFeedData, setPriceFeedData] = useState<PriceFeedData | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshTime, setLastRefreshTime] = useState<string>("");
-  
+
   const fetchPriceFeed = async (useSmartContract: boolean = true) => {
     if (!fromCurrency || !toCurrency || fromCurrency === toCurrency) {
       setPriceFeedData(null);
@@ -35,16 +37,17 @@ export default function PriceFeed({
     setError(null);
 
     try {
-      const data = await getPriceFeedFromBE(fromCurrency, toCurrency)      
-      setPriceFeedData(data)
-      setLastRefreshTime(new Date().toLocaleTimeString())
-      
-      if(onRateUpdate){
-        onRateUpdate(data.rate)
+      const data = await getPriceFeedFromBE(fromCurrency, toCurrency);
+      console.log(data);
+      setPriceFeedData(data);
+      setLastRefreshTime(new Date().toLocaleTimeString());
+
+      if (onRateUpdate) {
+        onRateUpdate(data.rate);
       }
     } catch (error) {
-      console.error('Error fetching price feed:', error);
-      setError('Failed to fetch price feed');
+      console.error("Error fetching price feed:", error);
+      setError("Failed to fetch price feed");
     } finally {
       setIsLoading(false);
     }
@@ -54,19 +57,18 @@ export default function PriceFeed({
   useEffect(() => {
     if (fromCurrency && toCurrency && fromCurrency !== toCurrency) {
       fetchPriceFeed();
-      
+
       const interval = setInterval(() => {
         fetchPriceFeed();
       }, 30000); // 30 seconds
-      
+
       return () => clearInterval(interval);
     }
   }, [fromCurrency, toCurrency]);
 
   // Hitung converted amount
-  const convertedAmount = priceFeedData && amount 
-    ? (amount * priceFeedData.rate)
-    : null;
+  const convertedAmount =
+    priceFeedData && amount ? amount * priceFeedData.rate : null;
 
   if (!fromCurrency || !toCurrency || fromCurrency === toCurrency) {
     return (
@@ -84,13 +86,15 @@ export default function PriceFeed({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <TrendingUp className="w-4 h-4 text-cyan-400" />
-          <span className="text-sm font-medium text-white">Live Exchange Rate</span>
+          <span className="text-sm font-medium text-white">
+            Live Exchange Rate
+          </span>
         </div>
         <button
           onClick={() => fetchPriceFeed()}
           disabled={isLoading}
           className={`p-1 rounded-full hover:bg-slate-600/50 transition-colors
-            ${isLoading ? 'animate-spin' : ''}
+            ${isLoading ? "animate-spin" : ""}
           `}
         >
           <RefreshCw className="w-4 h-4 text-gray-400" />
@@ -103,16 +107,12 @@ export default function PriceFeed({
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
         </div>
       ) : error ? (
-        <div className="text-red-400 text-sm text-center py-2">
-          {error}
-        </div>
+        <div className="text-red-400 text-sm text-center py-2">{error}</div>
       ) : priceFeedData ? (
         <div className="space-y-2">
           {/* Exchange Rate */}
           <div className="flex items-center justify-between">
-            <span className="text-gray-300 text-sm">
-              1 {fromCurrency} = 
-            </span>
+            <span className="text-gray-300 text-sm">1 {fromCurrency} =</span>
             <span className="text-white font-mono">
               {priceFeedData.rate.toLocaleString()} {toCurrency}
             </span>
@@ -130,9 +130,9 @@ export default function PriceFeed({
               <div className="flex items-center justify-between">
                 <span className="text-gray-300 text-sm">They receive:</span>
                 <span className="text-green-300 font-medium">
-                  {convertedAmount.toLocaleString('en-US', {
-                    minimumFractionDigits: 2, 
-                    maximumFractionDigits: 2
+                  {convertedAmount.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
                   })}
                 </span>
               </div>

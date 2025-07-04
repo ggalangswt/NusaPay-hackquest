@@ -67,6 +67,7 @@ export async function loadInvoiceData(req: Request, res: Response) {
 
     if (!invoice) {
       res.status(404).json({ message: "Invoice not found" });
+      return;
     } else {
       const finalStatus = await waitUntilCompleted(
         invoice.txHash,
@@ -78,6 +79,7 @@ export async function loadInvoiceData(req: Request, res: Response) {
       const employeeData = await EmployeeModel.findById(invoice.userId);
       if (!employeeData) {
         res.status(404).json({ message: "Can't find data for this person" });
+        return;
       } else {
         // Convert Mongoose document ke plain object dan spread ke response
         const plainInvoice = invoice.toObject();
@@ -93,6 +95,7 @@ export async function loadInvoiceData(req: Request, res: Response) {
           message: "Successfully fetched invoice with updated status",
           data: dataToSend,
         });
+        return;
       }
     }
   } catch (err: any) {
@@ -100,6 +103,7 @@ export async function loadInvoiceData(req: Request, res: Response) {
       message: "Error fetching data",
       error: err.message,
     });
+    return;
   }
 }
 // buat controller untuk ngasih akses ke FE biar bisa akses status berdasarkan txIdnya
@@ -157,11 +161,13 @@ export async function addPayrollData(req: Request, res: Response) {
       message: "Payroll data successfully added",
       payroll: saved,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error adding payroll data",
       error: err.message,
     });
+    return;
   }
 }
 
@@ -178,11 +184,13 @@ export async function loadPayrollData(req: Request, res: Response) {
       message: "Successfully fetched latest payrolls",
       data: latestPayrolls,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error fetching data",
       error: err.message,
     });
+    return;
   }
 }
 
@@ -224,11 +232,13 @@ export async function addPayrollDetailsData(req: Request, res: Response) {
       message: `Payroll details data for ${bankAccountName} has successfully added`,
       payroll: saved,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: `Error adding payroll details data for ${bankAccountName}`,
       error: err.message,
     });
+    return;
   }
 }
 
@@ -249,10 +259,12 @@ export async function loadPayrollDetailsData(req: Request, res: Response) {
       message: "Successfully fetched payrolls details data",
       data: latestPayrolls,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error fetching data",
       error: err.message,
     });
+    return;
   }
 }

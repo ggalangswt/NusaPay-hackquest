@@ -22,17 +22,20 @@ export async function addOrUpdateCompanyData(req: Request, res: Response) {
       res.status(404).json({
         message: "Company not found",
       });
+      return;
     }
 
     res.status(201).json({
       message: "Company data successfully edited",
       payroll: companyData,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error editing company data",
       error: err.message,
     });
+    return;
   }
 }
 
@@ -53,11 +56,13 @@ export async function addGroupName(req: Request, res: Response) {
       message: "New Groupsuccessfully created",
       payroll: saved,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error adding new group",
       error: err.message,
     });
+    return;
   }
 }
 
@@ -75,14 +80,15 @@ export async function loadGroupName(req: Request, res: Response) {
       message: "Group name successfully sended",
       data: loadAllGroupName,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error sending group of employee",
       error: err.message,
     });
+    return;
   }
 }
-
 
 export async function addEmployeeDataToGroup(req: Request, res: Response) {
   // bankCode dari FE harus bisa nge enum sesuai dengan bankAccountnya
@@ -137,17 +143,20 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
       res.status(404).json({
         message: "Group not found. Make sure the nameOfGroup is correct.",
       });
+      return;
     } else {
       res.status(201).json({
         message: "Employee data successfully added",
         payroll: saved,
       });
+      return;
     }
   } catch (err: any) {
     res.status(500).json({
       message: "Error adding employee data",
       error: err.message,
     });
+    return;
   }
 }
 export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
@@ -164,16 +173,18 @@ export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
       message: "Group of employee successfully sended",
       data: latestGroupOfEmployee,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error sending group of employee",
       error: err.message,
     });
+    return;
   }
 }
 export async function editEmployeeDataFromGroup(req: Request, res: Response) {
   const {
-    _id,
+    id,
     bankCode,
     bankAccount,
     bankAccountName,
@@ -181,10 +192,11 @@ export async function editEmployeeDataFromGroup(req: Request, res: Response) {
     currency,
     localCurrency,
   } = req.body;
+  console.log(id);
 
   try {
     const employeeData = await EmployeeModel.findByIdAndUpdate(
-      _id,
+      id,
       {
         bankCode,
         bankAccount,
@@ -200,17 +212,20 @@ export async function editEmployeeDataFromGroup(req: Request, res: Response) {
       res.status(404).json({
         message: "Employee not found",
       });
+      return;
     }
 
     res.status(201).json({
       message: "Employee data successfully edited",
       payroll: employeeData,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error editing employee data",
       error: err.message,
     });
+    return;
   }
 }
 // nek ada yang di delete ntar masuknya juga ke handler editEmployeeData ini
@@ -224,45 +239,45 @@ export async function deleteEmployeeDataFromGroup(req: Request, res: Response) {
       res.status(404).json({
         message: "Employee not found",
       });
+      return;
     }
 
     res.status(201).json({
       message: "Employee data successfully deleted",
       payroll: employeeData,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error deleting employee data",
       error: err.message,
     });
+    return;
   }
 }
 
-
 // export async function loadGroupOfEmployee(req: Request, res: Response) {
-  //   const { companyId } = req.body;
-  
-  //   try {
-  //     const latestGroupOfEmployee = await GroupOfEmployeeData.find({
-  //       companyId,
-  //     })
-  //       .sort({ timestamp: -1 }) // descending (terbaru di atas)
-  //       .lean(); // supaya hasilnya plain JS object dan lebih cepat
-  
-  //     res.status(201).json({
-  //       message: "Group of employee successfully sended",
-  //       data: latestGroupOfEmployee,
-  //     });
-  //   } catch (err: any) {
-  //     res.status(500).json({
-  //       message: "Error sending group of employee",
-  //       error: err.message,
-  //     });
-  //   }
-  // }
+//   const { companyId } = req.body;
 
+//   try {
+//     const latestGroupOfEmployee = await GroupOfEmployeeData.find({
+//       companyId,
+//     })
+//       .sort({ timestamp: -1 }) // descending (terbaru di atas)
+//       .lean(); // supaya hasilnya plain JS object dan lebih cepat
 
-  
+//     res.status(201).json({
+//       message: "Group of employee successfully sended",
+//       data: latestGroupOfEmployee,
+//     });
+//   } catch (err: any) {
+//     res.status(500).json({
+//       message: "Error sending group of employee",
+//       error: err.message,
+//     });
+//   }
+// }
+
 // export async function checkWalletAddressStatus(req: Request, res: Response) {
 //   const { companyId } = req.body;
 //   try {
@@ -368,10 +383,12 @@ export async function addOrUpdateCompanyStats(req: Request, res: Response) {
       message: "Company stats successfully updated",
       stats,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error updating company stats",
       error: err.message,
     });
+    return;
   }
 }
