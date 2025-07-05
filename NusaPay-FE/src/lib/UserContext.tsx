@@ -6,6 +6,8 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 type UserInfo = {
   _id: string;
   email: string;
+  companyId : string;
+  companyName : string;
 };
 
 export const useUser = () => useContext(UserContext);
@@ -13,7 +15,7 @@ export const useUser = () => useContext(UserContext);
 type UserContextType = {
   user: UserInfo | null;
   loading: boolean;
-};
+};  
 
 const UserContext = createContext<UserContextType>({
   user: null,

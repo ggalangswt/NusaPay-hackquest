@@ -121,8 +121,8 @@ export default function BeneficiaryModal({
 
     const commonPayload = {
       id: crypto.randomUUID(),
-      companyId: user._id, // TODO: Ambil dari cookie/session nanti
-      companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!, // TODO: Ambil dari auth
+      companyId: user.companyId, // TODO: Ambil dari cookie/session nanti
+      companyName: user.companyName!, // TODO: Ambil dari auth
       name: formData.name,
       bankCode: "014", // TODO: Bisa pakai enum/mapping dari nama bank
       bankAccountName: formData.bankAccountName,

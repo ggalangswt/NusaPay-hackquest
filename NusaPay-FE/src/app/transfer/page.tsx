@@ -79,7 +79,7 @@ export default function Dashboard() {
     const fetchTemplatesAndEmployees = async () => {
       try {
         const groupTemplates = await loadGroupName({
-          companyId: user._id,
+          companyId: user.companyId,
         });
         console.log(groupTemplates);
 
@@ -118,9 +118,9 @@ export default function Dashboard() {
     console.log(user?._id);
     console.log(user);
     const newTemplate = {
-      groupId: `${Date.now()}`,
-      companyId: user._id,
-      companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!,
+      groupId: crypto.randomUUID(),
+      companyId: user.companyId,
+      companyName: user.companyName,
       nameOfGroup: templateName,
       recipients: [],
       createdAt: new Date(),
@@ -211,8 +211,8 @@ export default function Dashboard() {
 
     try {
       const creationPayload = {
-        txId: "123",
-        companyId: user._id,
+        txId: crypto.randomUUID(),
+        companyId: user.companyId,
         templateName: currentTemplate.nameOfGroup,
         recipients: currentTemplate.recipients.map((r) => ({
           employeeId: r.id,

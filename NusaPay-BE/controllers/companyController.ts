@@ -41,7 +41,7 @@ export async function addOrUpdateCompanyData(req: Request, res: Response) {
 
 export async function addGroupName(req: Request, res: Response) {
   const { companyId, companyName, nameOfGroup, groupId } = req.body;
-
+  console.log(companyId)
   try {
     // minta FE buat ngirimin employeesNamenya juga (ketimbang backend harus ngefind satu satu name dari Id)
     const newGroupOfEmployee = new GroupOfEmployeeData({

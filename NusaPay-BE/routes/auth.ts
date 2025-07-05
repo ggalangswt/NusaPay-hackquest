@@ -50,6 +50,7 @@ router.get(
           res.json({
             _id: company._id,
             email: company.email,
+            companyId : company.companyId,
             companyName: company.companyName,
             profilePicture: company.profilePicture,
           });
