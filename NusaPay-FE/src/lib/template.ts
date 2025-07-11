@@ -7,7 +7,7 @@ export interface Template{
     companyId : string,
     companyName : string,
     nameOfGroup : string,
-    recipients: Employee[]
+    employees: Employee[]
     createdAt: Date
     updatedAt: Date
 }

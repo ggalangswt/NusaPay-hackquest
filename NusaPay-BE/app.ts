@@ -11,7 +11,7 @@ import loggedInRoutes from "./routes/loggedIn";
 import session from "express-session";
 import passport from "passport";
 import authRoutes from "./routes/auth";
-import pricefeedRoutes from "./routes/pricefeed";
+import pricefeedRoutes from "./routes/thirdParty";
 import cookieParser from "cookie-parser";
 
 // import { checkSession } from "./config/checkSession";

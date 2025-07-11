@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { Template, TemplateContextType } from "./template";
-import { Recipient } from "@/types/recipient";
+import { Employee } from "@/types/recipient";
 
 const TemplateContext = createContext<TemplateContextType | undefined>(undefined);
 
@@ -21,7 +21,7 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
       companyId: "your-company-id",
       companyName: "Your Company",
       nameOfGroup: name,
-      recipients: [],
+      employees: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -29,7 +29,7 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
     setCurrentTemplateId(newTemplate.groupId);
   };
 
-  const updateTemplate = (templateId: string, recipients: Recipient[]) => {
+  const updateTemplate = (templateId: string, recipients: Employee[]) => {
     setTemplates((prev) =>
       prev.map((t) =>
         t.groupId === templateId ? { ...t, recipients, updatedAt: new Date() } : t

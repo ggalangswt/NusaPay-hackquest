@@ -57,13 +57,11 @@ export default function Dashboard() {
         });
 
         const employeesFromBackend: Employee[] = response;
-
         const updatedTemplate: Template = {
           ...selected,
-          recipients: employeesFromBackend,
+          employees: employeesFromBackend,
           updatedAt: new Date(),
         };
-
         setCurrentTemplate(updatedTemplate);
       } catch (err) {
         console.error("Failed to load employees for group", err);
@@ -84,12 +82,12 @@ export default function Dashboard() {
         console.log(groupTemplates);
 
         const templatesWithEmptyRecipients: Template[] = groupTemplates.map(
-          (group: any) => ({
+          (group: Template) => ({
             groupId: group.groupId,
             companyId: group.companyId,
             companyName: group.companyName,
             nameOfGroup: group.nameOfGroup,
-            recipients: group.employees,
+            employees: group.employees,
             createdAt: new Date(group.createdAt),
             updatedAt: new Date(group.updatedAt),
           })
@@ -122,11 +120,11 @@ export default function Dashboard() {
       companyId: user.companyId,
       companyName: user.companyName,
       nameOfGroup: templateName,
-      recipients: [],
+      employees: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
+    
     await addGroupName(newTemplate);
     setTemplates([...templates, newTemplate]);
     setCurrentTemplate(newTemplate);
@@ -138,7 +136,7 @@ export default function Dashboard() {
 
     const updatedTemplate: Template = {
       ...currentTemplate,
-      recipients: newRecipients,
+      employees: newRecipients,
       updatedAt: new Date(),
     };
 
@@ -150,12 +148,12 @@ export default function Dashboard() {
     );
   };
 
-  const handleAddRecipient = (newRecipient: Omit<Employee, "_id">) => {
+    const handleAddRecipient = (newRecipient: Omit<Employee, "_id">) => {
     if (!currentTemplate) return;
     const employee: Employee = {
       ...newRecipient,
     };
-    updateCurrentTemplateRecipients([...currentTemplate.recipients, employee]);
+    updateCurrentTemplateRecipients([...currentTemplate.employees, employee]);
     setShowBeneficiaryModal(false);
   };
 
@@ -171,7 +169,7 @@ export default function Dashboard() {
 
   const handleRemoveRecipient = async (id: string) => {
     if (!currentTemplate) return;
-    const updatedList = currentTemplate.recipients.filter((r) => r.id !== id);
+    const updatedList = currentTemplate.employees.filter((r) => r.id !== id);
     await deleteEmployeeData(id);
     updateCurrentTemplateRecipients(updatedList);
   };
@@ -202,7 +200,7 @@ export default function Dashboard() {
     );
   }
 
-  const handleConfirmTransfer = async () => {
+const handleConfirmTransfer = async () => {
     if (!currentTemplate || !user) return;
 
     setShowTransferAlert(false);
@@ -210,15 +208,15 @@ export default function Dashboard() {
     setIsStage1Complete(false);
 
     try {
-      const creationPayload = {
-        txId: crypto.randomUUID(),
-        companyId: user.companyId,
-        templateName: currentTemplate.nameOfGroup,
-        recipients: currentTemplate.recipients.map((r) => ({
-          employeeId: r.id,
-          amount: r.amountTransfer,
-        })),
-      };
+      // const creationPayload = {
+      //   txId: crypto.randomUUID(),
+      //   companyId: user.companyId,
+      //   templateName: currentTemplate.nameOfGroup,
+      //   recipients: currentTemplate.recipients.map((r) => ({
+      //     employeeId: r.id,
+      //     amount: r.amountTransfer,
+      //   })),
+      // };
       // const newInvoice = await addInvoiceData(creationPayload);
       // setNewlyCreatedInvoiceId(newInvoice._id)
 
@@ -229,7 +227,7 @@ export default function Dashboard() {
       // setNewlyCreatedInvoiceId(null)
     }
   };
-
+  
   const handleProcessingComplete = () => {
     setShowProcessingModal(false);
     // if(newlyCreatedInvoiceId){
@@ -251,7 +249,7 @@ export default function Dashboard() {
 
         {currentTemplate ? (
           <RecipientGrid
-            employees={currentTemplate.recipients}
+            employees={currentTemplate.employees}
             onAddClick={() => setShowBeneficiaryModal(true)}
             onRemoveRecipient={handleRemoveRecipient}
             onRecipientClick={(recipient) => {
@@ -272,9 +270,9 @@ export default function Dashboard() {
         )}
       </main>
 
-      {currentTemplate && currentTemplate.recipients.length > 0 && (
+      {currentTemplate && currentTemplate.employees.length > 0 && (
         <TransferPanel
-          totalRecipients={currentTemplate.recipients.length}
+          totalRecipients={currentTemplate.employees.length}
           onTransferClick={() => setShowTransferAlert(true)}
         />
       )}
@@ -320,7 +318,7 @@ export default function Dashboard() {
 
       {showProcessingModal && currentTemplate && (
         <ProcessingModal
-          recepientCount={currentTemplate.recipients.length}
+          recepientCount={currentTemplate.employees.length}
           onComplete={handleProcessingComplete}
           isStage1Complete={isStage1Complete}
         />

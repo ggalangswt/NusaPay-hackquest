@@ -33,7 +33,6 @@ router.get(
         // console.log(decoded);
 
         const company = await CompanyDataModel.findOne({
-          _id: decoded._id,
           email: decoded.email,
         });
 

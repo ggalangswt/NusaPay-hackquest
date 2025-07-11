@@ -9,9 +9,9 @@ import { Invoice } from "@/types/invoice";
 export const getPriceFeedFromBE = async (
   fromCurrency: string,
   toCurrency: string
-): Promise<any> => {
+): Promise<PriceFeedResponse> => {
   try {
-    const response = await api.post<ApiResponse<PriceFeedResponse>>(
+    const response = await api.post<PriceFeedResponse>(
       `/getAllRatesToUsdc`,
       { fromCurrency, toCurrency } // ← kirim dalam body
     );

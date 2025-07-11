@@ -8,7 +8,7 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { ArrowLeft } from "lucide-react";
 import type { Invoice } from "@/types/invoice";
 import { useState, useEffect } from "react";
-import { loadInvoiceData } from "@/api";
+import { loadInvoiceData } from "@/api/transactionService";
 export default function InvoicePage() {
   const params = useParams();
   const router = useRouter();

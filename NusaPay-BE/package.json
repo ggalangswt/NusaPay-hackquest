@@ -12,6 +12,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/genai": "^1.9.0",
+    "@langchain/core": "^0.3.62",
+    "@langchain/google-genai": "^0.2.14",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "bignumber.js": "^9.3.0",

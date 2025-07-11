@@ -1,7 +1,6 @@
 import { api } from "./client";
 import type {
   Employee,
-  AddEmployeePayload,
   editEmployeePayload,
   LoadPayloadForGroupId,
   ApiResponse,

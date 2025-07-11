@@ -10,7 +10,7 @@ export interface PriceFeedData {
 
 export interface SmartContractResponse {
   success: boolean;
-  data?: any;
+  data?: string;
   error?: string;
 }
 
@@ -21,11 +21,11 @@ const SMART_CONTRACT_CONFIG = {
 };
 
 // Type declaration for window.ethereum
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
+// declare global {
+//   interface Window {
+//     ethereum?: ;
+//   }
+// }
 
 export const initializeWeb3 = async () => {
   try {
@@ -141,14 +141,14 @@ export const addRecipientToContract = async (
     
     // Wait for transaction confirmation
     const receipt = await tx.wait();
-    
+    console.log(receipt)
     return {
       success: true,
-      data: { 
-        transactionHash: tx.hash,
-        blockNumber: receipt.blockNumber,
-        gasUsed: receipt.gasUsed.toString()
-      },
+      // data: { 
+      //   transactionHash: tx.hash,
+      //   blockNumber: receipt.blockNumber,
+      //   gasUsed: receipt.gasUsed.toString()
+      // },
     };
   } catch (error: unknown) {
     console.error("Error adding recipient:", error);
@@ -163,7 +163,8 @@ export const addRecipientToContract = async (
       } else if (error.message.includes('gas')) {
         errorMessage = "Gas estimation failed. Please try again.";
       } else if ('reason' in error) {
-        errorMessage = (error as any).reason;
+        errorMessage = "Gas estimation failed. Please try again.";
+        // errorMessage = (error ).reason;
       } else {
         errorMessage = error.message;
       }

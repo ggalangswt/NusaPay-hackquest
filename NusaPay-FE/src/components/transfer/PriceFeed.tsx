@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { RefreshCw, TrendingUp, TrendingDown, Clock } from "lucide-react";
+import { RefreshCw, TrendingUp, Clock } from "lucide-react";
 
 import { type PriceFeedData } from "@/lib/smartContract";
 import { getPriceFeedFromBE } from "@/api/transactionService";
@@ -27,7 +27,8 @@ export default function PriceFeed({
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshTime, setLastRefreshTime] = useState<string>("");
 
-  const fetchPriceFeed = async (useSmartContract: boolean = true) => {
+  // const fetchPriceFeed = async (useSmartContract: boolean = true) => {
+  const fetchPriceFeed = async () => {
     if (!fromCurrency || !toCurrency || fromCurrency === toCurrency) {
       setPriceFeedData(null);
       return;

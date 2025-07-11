@@ -59,7 +59,7 @@ export default function DashboardHeader({templates, currentTemplate, onTemplateS
             {currentTemplate&& (
                 <div className="text-right">
                     <p className="text-gray-400 text-sm">
-                        {currentTemplate.recipients.length} Recipients
+                        {currentTemplate.employees.length} Recipients
                     </p>
                     <p className="text-gray-500 text-xs">
                         Updated {new Date(currentTemplate.updatedAt).toLocaleDateString()}

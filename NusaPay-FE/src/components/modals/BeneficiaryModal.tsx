@@ -5,16 +5,11 @@ import type { Employee } from "@/types/recipient";
 import { Button } from "../ui/button";
 import FormField from "./FormField";
 import ModalOverlay from "./ModalOverlay";
-import { addOrUpdateEmployeeData } from "@/api/employeeService";
+// import { addOrUpdateEmployeeData } from "@/api/employeeService";
 import { useTemplate } from "@/lib/TemplateContext";
 import { useUser } from "@/lib/UserContext";
-import {
-  addRecipientToContract,
-  getSupportedCurrencies,
-} from "@/lib/smartContract";
 import PriceFeed from "../transfer/PriceFeed";
 import CurrencySelector from "../transfer/CurrencySelector";
-import { id } from "ethers";
 /**
  * Add Beneficiary Modal Component
  * Fungsi:
@@ -28,10 +23,10 @@ interface BeneficiaryModalProps {
   onSave: (employee: Employee) => void;
 }
 
-interface BankInfo {
-  code: string;
-  name: string;
-}
+// interface BankInfo {
+//   code: string;
+//   name: string;
+// }
 
 export default function BeneficiaryModal({
   employee = null,
@@ -53,17 +48,17 @@ export default function BeneficiaryModal({
   const { currentTemplateId } = useTemplate();
   const modalTitle = isEditMode ? `${formData.name}` : "Add Beneficiary";
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
-  const [supportedBanks, setSupportedBanks] = useState<BankInfo[]>([]);
-  const [bankValidation, setBankValidation] = useState<{
-    isValid: boolean;
-    accountName?: String;
-    isValidating: boolean;
-  }>({
-    isValid: false,
-    isValidating: false,
-  });
+  // const [supportedBanks, setSupportedBanks] = useState<BankInfo[]>([]);
+  // const [bankValidation, setBankValidation] = useState<{
+  //   isValid: boolean;
+  //   accountName?: String;
+  //   isValidating: boolean;
+  // }>({
+  //   isValid: false,
+  //   isValidating: false,
+  // });
   useEffect(() => {
     if (isEditMode && employee) {
       setFormData({
@@ -93,6 +88,7 @@ export default function BeneficiaryModal({
 
   const handletExchangeRateUpdate = (rate: number) => {
     setExchangeRate(rate);
+    console.log(exchangeRate)
   };
 
   //Hander buat submit + validasi input + save

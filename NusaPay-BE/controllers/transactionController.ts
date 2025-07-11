@@ -68,15 +68,18 @@ export async function loadInvoiceData(req: Request, res: Response) {
     if (!invoice) {
       res.status(404).json({ message: "Invoice not found" });
       return;
-    } else {
+    } 
+    else {
       const finalStatus = await waitUntilCompleted(
         invoice.txHash,
         invoice.API_KEY
       );
       invoice.status = finalStatus;
       await invoice.save();
+      console.log(invoice.userId)
+      const userId = new mongoose.Types.ObjectId(invoice.userId)
+      const employeeData = await EmployeeModel.findById(userId);
 
-      const employeeData = await EmployeeModel.findById(invoice.userId);
       if (!employeeData) {
         res.status(404).json({ message: "Can't find data for this person" });
         return;
