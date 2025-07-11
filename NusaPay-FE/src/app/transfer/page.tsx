@@ -57,13 +57,11 @@ export default function Dashboard() {
         });
 
         const employeesFromBackend: Employee[] = response;
-
         const updatedTemplate: Template = {
           ...selected,
           employees: employeesFromBackend,
           updatedAt: new Date(),
         };
-
         setCurrentTemplate(updatedTemplate);
       } catch (err) {
         console.error("Failed to load employees for group", err);
@@ -150,7 +148,7 @@ export default function Dashboard() {
     );
   };
 
-  const handleAddRecipient = (newRecipient: Omit<Employee, "_id">) => {
+    const handleAddRecipient = (newRecipient: Omit<Employee, "_id">) => {
     if (!currentTemplate) return;
     const employee: Employee = {
       ...newRecipient,
@@ -202,7 +200,7 @@ export default function Dashboard() {
     );
   }
 
-  const handleConfirmTransfer = async () => {
+const handleConfirmTransfer = async () => {
     if (!currentTemplate || !user) return;
 
     setShowTransferAlert(false);
@@ -229,7 +227,7 @@ export default function Dashboard() {
       // setNewlyCreatedInvoiceId(null)
     }
   };
-
+  
   const handleProcessingComplete = () => {
     setShowProcessingModal(false);
     // if(newlyCreatedInvoiceId){

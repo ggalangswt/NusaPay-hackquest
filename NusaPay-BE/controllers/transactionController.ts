@@ -69,7 +69,6 @@ export async function loadInvoiceData(req: Request, res: Response) {
       res.status(404).json({ message: "Invoice not found" });
       return;
     } 
-    
     else {
       const finalStatus = await waitUntilCompleted(
         invoice.txHash,

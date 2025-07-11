@@ -5,7 +5,6 @@ import type {
   ApiResponse,
 } from "@/types/recipient";
 import { Invoice } from "@/types/invoice";
-// import { PriceFeedData } from "@/lib/smartContract";
 
 export const getPriceFeedFromBE = async (
   fromCurrency: string,
