@@ -1,12 +1,7 @@
 
 import { Invoice, InvoiceCreationPayload } from "@/types/invoice"
+import { ApiResponse } from "@/types/recipient"
 
-export interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-  message?: string
-}
 
 export class ApiError extends Error {
   constructor(

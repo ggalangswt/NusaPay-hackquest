@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import DashboardHeader from "@/components/dashboard/Header";
 import RecipientGrid from "@/components/dashboard/RecipientGrid";
 import TransferPanel from "@/components/dashboard/TransferPanel";
-import type { Recipient } from "@/types/recipient";
+import type { Employee } from "@/types/recipient";
 import BeneficiaryModal from "@/components/modals/BeneficiaryModal";
 import AddTemplateModal from "@/components/modals/AddTemplateModal";
 import {
@@ -18,13 +18,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Template } from "@/lib/template";
 import ProcessingModal from "@/components/modals/ProcessLoading";
+
+import { addGroupName, loadGroupName } from "@/api/groupService";
 import {
-  addGroupName,
+  addOrUpdateEmployeeData,
   deleteEmployeeData,
-  editEmployeeData,
   loadEmployeeData,
-  loadGroupName,
-} from "@/api";
+} from "@/api/employeeService";
 import { useUser } from "@/lib/UserContext";
 import { useRouter } from "next/navigation";
 
@@ -37,7 +37,7 @@ export default function Dashboard() {
   const [hasFetched, setHasFetched] = useState(false);
 
   const [showBeneficiaryModal, setShowBeneficiaryModal] = useState(false);
-  const [editingRecipient, setEditingRecipient] = useState<Recipient | null>(
+  const [editingRecipient, setEditingRecipient] = useState<Employee | null>(
     null
   );
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -56,22 +56,11 @@ export default function Dashboard() {
           groupId: selected.groupId,
         });
 
-        const recipientsFromBackend: Recipient[] = response.map(
-          (emp: Recipient) => ({
-            _id: emp._id,
-            name: emp.name,
-            bankCode: emp.bankCode,
-            bankAccount: emp.bankAccount,
-            bankAccountName: emp.bankAccountName,
-            amountTransfer: emp.amountTransfer,
-            currency: emp.currency,
-            localCurrency: emp.localCurrency,
-          })
-        );
+        const employeesFromBackend: Employee[] = response;
 
         const updatedTemplate: Template = {
           ...selected,
-          recipients: recipientsFromBackend,
+          employees: employeesFromBackend,
           updatedAt: new Date(),
         };
 
@@ -86,38 +75,38 @@ export default function Dashboard() {
   // Fetch all templates first
   useEffect(() => {
     if (loading || !user?._id || hasFetched) return;
-  
+
     const fetchTemplatesAndEmployees = async () => {
       try {
         const groupTemplates = await loadGroupName({
-          companyId: user._id,
+          companyId: user.companyId,
         });
-        console.log(groupTemplates)
-  
+        console.log(groupTemplates);
+
         const templatesWithEmptyRecipients: Template[] = groupTemplates.map(
-          (group: any) => ({
+          (group: Template) => ({
             groupId: group.groupId,
             companyId: group.companyId,
             companyName: group.companyName,
             nameOfGroup: group.nameOfGroup,
-            recipients: group.employees,
+            employees: group.employees,
             createdAt: new Date(group.createdAt),
             updatedAt: new Date(group.updatedAt),
           })
         );
-  
+
         setTemplates(templatesWithEmptyRecipients);
-  
+
         if (templatesWithEmptyRecipients.length > 0) {
           await handleTemplateSwitch(templatesWithEmptyRecipients[0].groupId);
         }
-  
+
         setHasFetched(true);
       } catch (err) {
         console.error("Failed to fetch templates", err);
       }
     };
-  
+
     fetchTemplatesAndEmployees();
   }, [loading, user, hasFetched, handleTemplateSwitch]);
 
@@ -129,27 +118,27 @@ export default function Dashboard() {
     console.log(user?._id);
     console.log(user);
     const newTemplate = {
-      groupId: `${Date.now()}`,
-      companyId: user._id,
-      companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!,
+      groupId: crypto.randomUUID(),
+      companyId: user.companyId,
+      companyName: user.companyName,
       nameOfGroup: templateName,
-      recipients: [],
+      employees: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-
+    
     await addGroupName(newTemplate);
     setTemplates([...templates, newTemplate]);
     setCurrentTemplate(newTemplate);
     setShowTemplateModal(false);
   };
 
-  const updateCurrentTemplateRecipients = (newRecipients: Recipient[]) => {
+  const updateCurrentTemplateRecipients = (newRecipients: Employee[]) => {
     if (!currentTemplate) return;
 
     const updatedTemplate: Template = {
       ...currentTemplate,
-      recipients: newRecipients,
+      employees: newRecipients,
       updatedAt: new Date(),
     };
 
@@ -161,20 +150,19 @@ export default function Dashboard() {
     );
   };
 
-  const handleAddRecipient = (newRecipient: Omit<Recipient, "_id">) => {
+  const handleAddRecipient = (newRecipient: Omit<Employee, "_id">) => {
     if (!currentTemplate) return;
-    const recipient: Recipient = {
-      _id: Date.now().toString(),
+    const employee: Employee = {
       ...newRecipient,
     };
-    updateCurrentTemplateRecipients([...currentTemplate.recipients, recipient]);
+    updateCurrentTemplateRecipients([...currentTemplate.employees, employee]);
     setShowBeneficiaryModal(false);
   };
 
-  // const handleEditRecipient = (updated: Recipient) => {
+  // const handleEditRecipient = (updated: Employee) => {
   //   if (!currentTemplate) return;
   //   const updatedList = currentTemplate.recipients.map((r) =>
-  //     r._id === updated._id ? updated : r
+  //     r.id === updated._id ? updated : r
   //   );
   //   updateCurrentTemplateRecipients(updatedList);
   //   setEditingRecipient(null);
@@ -183,21 +171,23 @@ export default function Dashboard() {
 
   const handleRemoveRecipient = async (id: string) => {
     if (!currentTemplate) return;
-    const updatedList = currentTemplate.recipients.filter((r) => r._id !== id);
+    const updatedList = currentTemplate.employees.filter((r) => r.id !== id);
     await deleteEmployeeData(id);
     updateCurrentTemplateRecipients(updatedList);
   };
 
-  const handleSaveBeneficiary = async (
-    data: Recipient | Omit<Recipient, "_id">
-  ) => {
+  const handleSaveBeneficiary = async (data: Employee) => {
     if (!currentTemplate) return;
 
-    if ("_id" in data) {
-      await editEmployeeData({ ...data, _id: data._id });
+    // ✅ PERBAIKAN: Ubah kondisi 'if' ini.
+    // Cek ini memastikan 'data._id' ada dan bukan string kosong.
+    console.log(data);
+    if (data.id) {
+      // Di dalam blok ini, TypeScript sekarang yakin bahwa data._id adalah 'string'.
+      await addOrUpdateEmployeeData({ ...data, id: data.id });
       await handleTemplateSwitch(currentTemplate.groupId);
     } else {
-      // Ini tambah baru (tidak perlu fetch ulang kalau hanya local update)
+      // Ini tambah baru
       handleAddRecipient(data);
     }
 
@@ -221,15 +211,14 @@ export default function Dashboard() {
 
     try {
       // const creationPayload = {
-      //   txId: "123",
-      //   companyId: user._id,
+      //   txId: crypto.randomUUID(),
+      //   companyId: user.companyId,
       //   templateName: currentTemplate.nameOfGroup,
-      //   recipients: currentTemplate.recipients.map(r =>({
-      //     employeeId: r._id,
+      //   recipients: currentTemplate.recipients.map((r) => ({
+      //     employeeId: r.id,
       //     amount: r.amountTransfer,
-      //   }))
-      // }
-      //loading 1
+      //   })),
+      // };
       // const newInvoice = await addInvoiceData(creationPayload);
       // setNewlyCreatedInvoiceId(newInvoice._id)
 
@@ -262,7 +251,7 @@ export default function Dashboard() {
 
         {currentTemplate ? (
           <RecipientGrid
-            recipients={currentTemplate.recipients}
+            employees={currentTemplate.employees}
             onAddClick={() => setShowBeneficiaryModal(true)}
             onRemoveRecipient={handleRemoveRecipient}
             onRecipientClick={(recipient) => {
@@ -283,9 +272,9 @@ export default function Dashboard() {
         )}
       </main>
 
-      {currentTemplate && currentTemplate.recipients.length > 0 && (
+      {currentTemplate && currentTemplate.employees.length > 0 && (
         <TransferPanel
-          totalRecipients={currentTemplate.recipients.length}
+          totalRecipients={currentTemplate.employees.length}
           onTransferClick={() => setShowTransferAlert(true)}
         />
       )}
@@ -331,7 +320,7 @@ export default function Dashboard() {
 
       {showProcessingModal && currentTemplate && (
         <ProcessingModal
-          recepientCount={currentTemplate.recipients.length}
+          recepientCount={currentTemplate.employees.length}
           onComplete={handleProcessingComplete}
           isStage1Complete={isStage1Complete}
         />

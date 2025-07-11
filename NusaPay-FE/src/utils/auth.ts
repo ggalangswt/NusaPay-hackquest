@@ -2,6 +2,7 @@
 export const getMe = async () => {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/check-auth`, {
+    // const res = await fetch("https://be-nusapay.vercel.app/check-auth", {
       credentials: "include", // <-- penting untuk kirim cookie `user_session`
     });
 

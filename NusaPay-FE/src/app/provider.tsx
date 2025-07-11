@@ -1,22 +1,18 @@
-"use client"
-import { WagmiProvider } from "wagmi"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import React from "react";
+// lib/provider.tsx
+'use client';
 
-import '@rainbow-me/rainbowkit/styles.css';
-import { config } from "@/config/config";
+import { WagmiProvider } from 'wagmi'; // 🆕 Ganti WagmiConfig ➜ WagmiProvider
+import { wagmiConfig } from '@/config/config';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const queryClient = new QueryClient({});
+const client = new QueryClient();
 
-export default function Provider({children}: {children: React.ReactNode}) {
-    return (
-        <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          {children}
-        </RainbowKitProvider>
+export default function Web3Provider({ children }: { children: React.ReactNode }) {
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={client}>
+        {children}
       </QueryClientProvider>
     </WagmiProvider>
-    )
+  );
 }

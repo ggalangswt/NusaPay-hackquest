@@ -11,7 +11,9 @@ import loggedInRoutes from "./routes/loggedIn";
 import session from "express-session";
 import passport from "passport";
 import authRoutes from "./routes/auth";
+import pricefeedRoutes from "./routes/thirdParty";
 import cookieParser from "cookie-parser";
+
 // import { checkSession } from "./config/checkSession";
 import { main } from "./services/smartContractListenerForUSDC";
 const app = express();
@@ -51,9 +53,9 @@ app.use(passport.session());
 //     next();
 // });
 
-
 app.use("/", authRoutes);
 app.use("/", loggedInRoutes);
+app.use("/", pricefeedRoutes);
 
 //handle semua endpoint yang gaada untuk menampilkan 404 not found page
 app.get("*", (req, res) => {

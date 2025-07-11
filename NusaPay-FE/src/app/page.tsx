@@ -43,15 +43,15 @@ export default function Homepage() {
         <button
           className="bg-[#095564] text-white px-16 py-2 rounded-3xl border-y-1 text-sm md:text-base font-semibold shadow-lg hover:scale-105 transition-transform"
           onClick={async () => {
-            const token = await getMe() // ganti sesuai penyimpanan token kamu
-            if (token._id) {
+            const token = await getMe(); // ganti sesuai penyimpanan token kamu
+            if (token) {
               window.location.href = "/transfer";
             } else {
               window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/google`;
+              // window.location.href = "https://be-nusapay.vercel.app/auth/google";
             }
           }}
         >
-          
           Transfer Now
         </button>
       </div>

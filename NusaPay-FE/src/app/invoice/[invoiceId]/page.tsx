@@ -8,7 +8,7 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { ArrowLeft } from "lucide-react";
 import type { Invoice } from "@/types/invoice";
 import { useState, useEffect } from "react";
-import { loadInvoiceData } from "@/api";
+import { loadInvoiceData } from "@/api/transactionService";
 export default function InvoicePage() {
   const params = useParams();
   const router = useRouter();
@@ -266,7 +266,7 @@ export default function InvoicePage() {
     <p className="lg:text-[10px] text-xs font-bold border-b border-white/30 text-gray-400 pb-1 mb-2">Bank</p>
     <div className="flex items-center gap-2 border-b border-white/30 pb-2 px-0">
       <span className="text-xs text-gray-400 font-bold">•</span>
-      <p className="text-white font-semibold text-xs">Bank Negara Indonesia</p>
+      <p className="text-white font-semibold text-xs">Bank Central Asia (BCA)</p>
     </div>
   </div>
 

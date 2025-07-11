@@ -22,23 +22,26 @@ export async function addOrUpdateCompanyData(req: Request, res: Response) {
       res.status(404).json({
         message: "Company not found",
       });
+      return;
     }
 
     res.status(201).json({
       message: "Company data successfully edited",
       payroll: companyData,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error editing company data",
       error: err.message,
     });
+    return;
   }
 }
 
 export async function addGroupName(req: Request, res: Response) {
   const { companyId, companyName, nameOfGroup, groupId } = req.body;
-
+  console.log(companyId)
   try {
     // minta FE buat ngirimin employeesNamenya juga (ketimbang backend harus ngefind satu satu name dari Id)
     const newGroupOfEmployee = new GroupOfEmployeeData({
@@ -53,11 +56,13 @@ export async function addGroupName(req: Request, res: Response) {
       message: "New Groupsuccessfully created",
       payroll: saved,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error adding new group",
       error: err.message,
     });
+    return;
   }
 }
 
@@ -75,18 +80,18 @@ export async function loadGroupName(req: Request, res: Response) {
       message: "Group name successfully sended",
       data: loadAllGroupName,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error sending group of employee",
       error: err.message,
     });
+    return;
   }
 }
-
-
-export async function addEmployeeDataToGroup(req: Request, res: Response) {
-  // bankCode dari FE harus bisa nge enum sesuai dengan bankAccountnya
+export async function addOrUpdateEmployeeData(req: Request, res: Response) {
   const {
+    id,
     companyId,
     companyName,
     name,
@@ -102,54 +107,67 @@ export async function addEmployeeDataToGroup(req: Request, res: Response) {
   } = req.body;
 
   try {
-    const newEmployeeData = new EmployeeModel({
-      companyId,
-      companyName,
-      name,
-      bankCode,
-      bankAccount,
-      bankAccountName,
-      walletAddress,
-      networkChainId,
-      amountTransfer,
-      currency,
-      localCurrency,
-      groupId,
-    });
+    // Cek apakah employee dengan id tersebut sudah ada
+    const existingEmployee = await EmployeeModel.findOne({ id });
 
-    const saved = await newEmployeeData.save();
+    let employeeData;
 
-    const updatedGroup = await GroupOfEmployeeData.findOneAndUpdate(
-      { groupId },
-      {
-        $push: {
-          employees: {
-            id: saved._id,
-            name: saved.name,
-          },
+    if (existingEmployee) {
+      // Jika ada, lakukan update
+      employeeData = await EmployeeModel.findOneAndUpdate(
+        { id },
+        {
+          companyId,
+          companyName,
+          name,
+          bankCode,
+          bankAccount,
+          bankAccountName,
+          walletAddress,
+          networkChainId,
+          amountTransfer,
+          currency,
+          localCurrency,
+          groupId,
         },
-        $inc: { totalRecipients: 1 },
-      },
-      { new: true }
-    );
-
-    if (!updatedGroup) {
-      res.status(404).json({
-        message: "Group not found. Make sure the nameOfGroup is correct.",
-      });
+        { new: true }
+      );
     } else {
-      res.status(201).json({
-        message: "Employee data successfully added",
-        payroll: saved,
+      // Jika tidak ada, buat data baru
+      const newEmployee = new EmployeeModel({
+        id, // tetap gunakan id dari FE
+        companyId,
+        companyName,
+        name,
+        bankCode,
+        bankAccount,
+        bankAccountName,
+        walletAddress,
+        networkChainId,
+        amountTransfer,
+        currency,
+        localCurrency,
+        groupId,
       });
+
+      employeeData = await newEmployee.save();
     }
+
+    res.status(201).json({
+      message: existingEmployee
+        ? "Employee data successfully updated"
+        : "Employee data successfully added",
+      employee: employeeData,
+    });
   } catch (err: any) {
+    console.error("Error in addOrUpdateEmployeeData:", err.message);
     res.status(500).json({
-      message: "Error adding employee data",
+      message: "Error saving employee data",
       error: err.message,
     });
   }
 }
+
 export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
   const { groupId } = req.body;
 
@@ -164,55 +182,16 @@ export async function loadEmployeeDataFromGroup(req: Request, res: Response) {
       message: "Group of employee successfully sended",
       data: latestGroupOfEmployee,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error sending group of employee",
       error: err.message,
     });
+    return;
   }
 }
-export async function editEmployeeDataFromGroup(req: Request, res: Response) {
-  const {
-    _id,
-    bankCode,
-    bankAccount,
-    bankAccountName,
-    amountTransfer,
-    currency,
-    localCurrency,
-  } = req.body;
 
-  try {
-    const employeeData = await EmployeeModel.findByIdAndUpdate(
-      _id,
-      {
-        bankCode,
-        bankAccount,
-        bankAccountName,
-        amountTransfer,
-        currency,
-        localCurrency,
-      },
-      { new: true }
-    );
-
-    if (!employeeData) {
-      res.status(404).json({
-        message: "Employee not found",
-      });
-    }
-
-    res.status(201).json({
-      message: "Employee data successfully edited",
-      payroll: employeeData,
-    });
-  } catch (err: any) {
-    res.status(500).json({
-      message: "Error editing employee data",
-      error: err.message,
-    });
-  }
-}
 // nek ada yang di delete ntar masuknya juga ke handler editEmployeeData ini
 export async function deleteEmployeeDataFromGroup(req: Request, res: Response) {
   const { id } = req.body;
@@ -224,45 +203,45 @@ export async function deleteEmployeeDataFromGroup(req: Request, res: Response) {
       res.status(404).json({
         message: "Employee not found",
       });
+      return;
     }
 
     res.status(201).json({
       message: "Employee data successfully deleted",
       payroll: employeeData,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error deleting employee data",
       error: err.message,
     });
+    return;
   }
 }
 
-
 // export async function loadGroupOfEmployee(req: Request, res: Response) {
-  //   const { companyId } = req.body;
-  
-  //   try {
-  //     const latestGroupOfEmployee = await GroupOfEmployeeData.find({
-  //       companyId,
-  //     })
-  //       .sort({ timestamp: -1 }) // descending (terbaru di atas)
-  //       .lean(); // supaya hasilnya plain JS object dan lebih cepat
-  
-  //     res.status(201).json({
-  //       message: "Group of employee successfully sended",
-  //       data: latestGroupOfEmployee,
-  //     });
-  //   } catch (err: any) {
-  //     res.status(500).json({
-  //       message: "Error sending group of employee",
-  //       error: err.message,
-  //     });
-  //   }
-  // }
+//   const { companyId } = req.body;
 
+//   try {
+//     const latestGroupOfEmployee = await GroupOfEmployeeData.find({
+//       companyId,
+//     })
+//       .sort({ timestamp: -1 }) // descending (terbaru di atas)
+//       .lean(); // supaya hasilnya plain JS object dan lebih cepat
 
-  
+//     res.status(201).json({
+//       message: "Group of employee successfully sended",
+//       data: latestGroupOfEmployee,
+//     });
+//   } catch (err: any) {
+//     res.status(500).json({
+//       message: "Error sending group of employee",
+//       error: err.message,
+//     });
+//   }
+// }
+
 // export async function checkWalletAddressStatus(req: Request, res: Response) {
 //   const { companyId } = req.body;
 //   try {
@@ -368,10 +347,12 @@ export async function addOrUpdateCompanyStats(req: Request, res: Response) {
       message: "Company stats successfully updated",
       stats,
     });
+    return;
   } catch (err: any) {
     res.status(500).json({
       message: "Error updating company stats",
       error: err.message,
     });
+    return;
   }
 }

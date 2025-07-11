@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Employee, Recipient } from "@/types/recipient";
+import type { Employee } from "@/types/recipient";
 import { Button } from "../ui/button";
 import FormField from "./FormField";
 import ModalOverlay from "./ModalOverlay";
-import { addEmployeeData } from "../../api";
+// import { addOrUpdateEmployeeData } from "@/api/employeeService";
 import { useTemplate } from "@/lib/TemplateContext";
 import { useUser } from "@/lib/UserContext";
-
+import PriceFeed from "../transfer/PriceFeed";
+import CurrencySelector from "../transfer/CurrencySelector";
 /**
  * Add Beneficiary Modal Component
  * Fungsi:
@@ -17,10 +18,15 @@ import { useUser } from "@/lib/UserContext";
  */
 
 interface BeneficiaryModalProps {
-  employee?: Recipient | null;
+  employee?: Employee | null;
   onClose: () => void;
-  onSave: (employee: Employee | Omit<Recipient, "_id">) => void;
+  onSave: (employee: Employee) => void;
 }
+
+// interface BankInfo {
+//   code: string;
+//   name: string;
+// }
 
 export default function BeneficiaryModal({
   employee = null,
@@ -42,6 +48,17 @@ export default function BeneficiaryModal({
   const { currentTemplateId } = useTemplate();
   const modalTitle = isEditMode ? `${formData.name}` : "Add Beneficiary";
 
+  // const [isLoading, setIsLoading] = useState(false);
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+  // const [supportedBanks, setSupportedBanks] = useState<BankInfo[]>([]);
+  // const [bankValidation, setBankValidation] = useState<{
+  //   isValid: boolean;
+  //   accountName?: String;
+  //   isValidating: boolean;
+  // }>({
+  //   isValid: false,
+  //   isValidating: false,
+  // });
   useEffect(() => {
     if (isEditMode && employee) {
       setFormData({
@@ -55,8 +72,8 @@ export default function BeneficiaryModal({
     } else {
       setFormData({
         name: "",
-        currency: "",
-        localCurrency: "",
+        currency: "USDC",
+        localCurrency: "IDR",
         bankAccountName: "",
         bankAccount: "",
         amountTransfer: "",
@@ -65,8 +82,13 @@ export default function BeneficiaryModal({
   }, [isEditMode, employee]);
 
   //Handler buat update formfield
-  const handelInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handletExchangeRateUpdate = (rate: number) => {
+    setExchangeRate(rate);
+    console.log(exchangeRate)
   };
 
   //Hander buat submit + validasi input + save
@@ -83,19 +105,20 @@ export default function BeneficiaryModal({
     }
 
     if (!user || !user._id) {
-        alert("User data is not available. Please try again later.");
-        return;
+      alert("User data is not available. Please try again later.");
+      return;
     }
     if (!currentTemplateId) {
-        alert("No active template selected. Please select a template first.");
-        return;
+      alert("No active template selected. Please select a template first.");
+      return;
     }
 
     console.log(currentTemplateId);
 
     const commonPayload = {
-      companyId: user._id, // TODO: Ambil dari cookie/session nanti
-      companyName: process.env.NEXT_PUBLIC_COMPANY_NAME!, // TODO: Ambil dari auth
+      id: crypto.randomUUID(),
+      companyId: user.companyId, // TODO: Ambil dari cookie/session nanti
+      companyName: user.companyName!, // TODO: Ambil dari auth
       name: formData.name,
       bankCode: "014", // TODO: Bisa pakai enum/mapping dari nama bank
       bankAccountName: formData.bankAccountName,
@@ -103,20 +126,20 @@ export default function BeneficiaryModal({
       walletAddress: "0xe8720c942F114Eac371746C6eCfAcf5F717164CB", // TODO
       networkChainId: 4202,
       amountTransfer: Number.parseFloat(formData.amountTransfer),
-      currency: formData.currency || "USDC",
-      localCurrency: formData.localCurrency || "IDR",
+      currency: formData.currency,
+      localCurrency: formData.localCurrency,
       groupId: currentTemplateId, // harusnya diganti dengan bisa menyesuaikan skrg lagi ada di template apa
     };
 
     if (isEditMode && employee) {
       const updatedEmployee = {
         ...commonPayload,
-        id: employee._id,
+        id: employee.id,
       };
       onSave(updatedEmployee);
     } else {
       onSave(commonPayload);
-      await addEmployeeData(commonPayload);
+      // await addOrUpdateEmployeeData(commonPayload);
     }
   };
 
@@ -137,42 +160,67 @@ export default function BeneficiaryModal({
             <FormField
               label="Full Name"
               value={formData.name}
-              onChange={(value) => handelInputChange("name", value)}
+              onChange={(value) => handleInputChange("name", value)}
               placeholder="Type here"
             />
           )}
-          <FormField
+
+          <div className="grid grid-cols-2 gap-4">
+            <CurrencySelector
+              label="Currency"
+              value={formData.currency}
+              onChange={(value) => handleInputChange("currency", value)}
+              currencyType="crypto"
+              placeholder="Select currency"
+            />
+            <CurrencySelector
+              label="Local Currency"
+              value={formData.localCurrency}
+              onChange={(value) => handleInputChange("localCurrency", value)}
+              currencyType="fiat"
+              placeholder="Select currency"
+            />
+          </div>
+
+          {/* <FormField
             label="Currency"
             value={formData.currency}
-            onChange={(value) => handelInputChange("currency", value)}
+            onChange={(value) => handleInputChange("currency", value)}
             placeholder="Type here"
           />
           <FormField
             label="Local Currency"
             value={formData.localCurrency}
-            onChange={(value) => handelInputChange("localCurrency", value)}
+            onChange={(value) => handleInputChange("localCurrency", value)}
             placeholder="Type here"
-          />
+          /> */}
           <FormField
             label="Bank"
             value={formData.bankAccountName}
-            onChange={(value) => handelInputChange("bankAccountName", value)}
+            onChange={(value) => handleInputChange("bankAccountName", value)}
             placeholder="Type here"
           />
           <FormField
             label="Bank Account"
             value={formData.bankAccount}
-            onChange={(value) => handelInputChange("bankAccount", value)}
+            onChange={(value) => handleInputChange("bankAccount", value)}
             placeholder="Type here"
           />
           <FormField
             label="Amount"
             value={formData.amountTransfer}
-            onChange={(value) => handelInputChange("amountTransfer", value)}
+            onChange={(value) => handleInputChange("amountTransfer", value)}
             placeholder="Type here"
           />
 
           {/* Price feed */}
+          <PriceFeed
+            fromCurrency={formData.currency}
+            toCurrency={formData.localCurrency}
+            amount={parseFloat(formData.amountTransfer) || 0}
+            onRateUpdate={handletExchangeRateUpdate}
+          ></PriceFeed>
+
           <div className=" rounded-lg justify-end flex ">
             <p className="text-gray-300 text-sm text-center">
               Display Price Feed Here

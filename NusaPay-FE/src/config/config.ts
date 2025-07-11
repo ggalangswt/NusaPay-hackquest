@@ -1,9 +1,16 @@
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { arbitrumSepolia } from "wagmi/chains";
 
-export const config = getDefaultConfig({
-  appName: "NusaPay",
-  projectId: "YOUR_PROJECT_ID",
-  chains: [arbitrumSepolia],
-  ssr: false, // If your dApp uses server side rendering (SSR)
+import { http, createConfig } from "wagmi";
+import { mainnet, linea, lineaSepolia } from "wagmi/chains";
+import { metaMask } from "wagmi/connectors";
+
+
+export const wagmiConfig = createConfig({
+  ssr: true,
+  chains: [mainnet, linea, lineaSepolia],
+  connectors: [metaMask()],
+  transports: {
+    [mainnet.id]: http(),
+    [linea.id]: http(),
+    [lineaSepolia.id]: http(),
+  },
 });
